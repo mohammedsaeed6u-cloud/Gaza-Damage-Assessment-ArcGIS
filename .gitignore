@@ -10,15 +10,16 @@
 
 # 2. Giant Raw Source Dumps (>100 MB)
 01_Raw_Data/gaza_osm_buildings_baseline_pre_conflict.geojson
-01_Raw_Data/UNOSAT_Damage_Points_Raw.dbf
 02_Geodatabase/Buildings_Damage_Master.dbf
+
+# 2b. Curated project rasters (compact GeoTIFFs, ~6-9 MB each) ARE tracked
+!ArcGIS_Pro_Project/Gaza_City_Focus/*.tif
 
 # 3. ArcGIS Pro & ArcPy Temporary Locks
 *.lock
 *.sr.lock
 *.ed.lock
 *.xml
-*.cpg
 
 # 4. Python runtime artifacts
 __pycache__/

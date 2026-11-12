@@ -70,18 +70,23 @@ This repository contains the complete, reproducible **ArcGIS Pro project (`.aprx
 
 ```text
 ├── ArcGIS_Pro_Project/
-│   ├── Gaza_Damage_Assessment.aprx    # ملف مشروع ArcGIS Pro المعتمد
-│   ├── Gaza_GIS_Master.gdb/           # قاعدة البيانات الجغرافية الرئيسية
-│   └── Rasters_UTM36N/                # مجلد مخرجات الراستر المصححة
-├── 01_Raw_Data/
-│   └── OCHA_Admin_Boundaries/         # حدود البلديات والمحافظات (OCHA)
-├── 02_Geodatabase/                    # طبقات المتجهات المعايرة
-├── 03_Tabulated_Metrics/              # جداول الإحصائيات (CSV & JSON)
+│   ├── Gaza_Damage_Assessment.aprx    # مشروع ArcGIS Pro (مسارات نسبية — الطبقات تُحمَّل تلقائياً)
+│   ├── Gaza_City_Focus/               # بيانات المشروع الجاهزة (Shapefile + GeoTIFFs مرجعية)
+│   │   ├── Damage_Sites_Gaza_City.shp # 46,971 موقعاً متضرراً بمحافظة غزة (UNOSAT)
+│   │   ├── Gaza_City_1_Pre_Aug_2023.tif ... Gaza_City_4_Latest_Nov_2026.tif
+│   │   └── Gaza_City_dNDVI.tif        # مؤشر التغير (انظر ملاحظات الإسناد أدناه)
+│   ├── Gaza_GIS_Master_GDB.zip        # قاعدة البيانات الجغرافية الكاملة (6 طبقات تحليلية)
 │   ├── Gaza_Governorate_Final_Stats.csv
 │   └── Gaza_Neighborhood_Final_Stats.csv
-├── 04_Cartographic_Exports/           # مخرجات الخرائط الهندسية عالية الدقة
-│   ├── خريطة_تحليل_تدمير_مدينة_غزة_A3_بيضاء.png  # لوحة A3 بدقة 300 DPI
-│   └── خريطة_تحليل_تدمير_مدينة_غزة_A3_بيضاء.pdf  # ملف الطباعة الهندسي
+├── 01_Raw_Data/
+│   ├── OCHA_Admin_Boundaries/         # حدود المحافظات والمدن (OCHA)
+│   └── UNOSAT_Damage_Points_Raw.*     # 170,835 موقعاً متضرراً (بيانات كاملة بالسمات)
+├── 03_Tabulated_Metrics/              # جداول الإحصائيات (CSV & JSON)
+├── 04_Cartographic_Exports/           # مخرجات الخرائط (A3 Landscape — 300 DPI)
+│   ├── 01_Timeline_Imagery_Comparison.(png|pdf)        # المقارنة الزمنية للمرئيات
+│   ├── 02_Building_Damage_Classification_Map.(png|pdf) # تصنيف أضرار المباني
+│   ├── 03_Kernel_Density_Hotspots_Map.(png|pdf)        # البؤر الساخنة (Getis-Ord Gi*)
+│   └── خريطة_تحليل_تدمير_مدينة_غزة_A3_بيضاء.(png|pdf) # لوحة A3 شاملة
 ├── 05_Academic_Report/                # التقرير الأكاديمي التفصيلي
 ├── 06_Minimalist_Web_and_Deck/        # تطبيق الويب والعرض التقديمي
 │   ├── index.html                     # تطبيق العرض التفاعلي الشامل
@@ -89,6 +94,7 @@ This repository contains the complete, reproducible **ArcGIS Pro project (`.aprx
 │   └── assets/                        # المرئيات واللوحات التفاعلية
 └── scripts/                           # سكربتات البايثون المؤتمتة
     ├── generate_pristine_map_panels.py # توليد المرئيات الصافية والحدود
+    ├── export_gis_cartographic_maps.py # تصدير الخرائط الكارتوغرافية A3 من الـ GDB
     ├── build_flawless_a3_plate.py      # إخراج لوحة A3 عبر Google Chrome
     ├── build_ultimate_unified_system.py# بناء المنظومة التفاعلية والعرض
     └── build_clean_white_deck.py       # إنشاء شرائح الباوربوينت
@@ -99,12 +105,17 @@ This repository contains the complete, reproducible **ArcGIS Pro project (`.aprx
 ## 🚀 طريقة الاستخدام وإعادة التشغيل (How to Run)
 
 ### 1. فتح المشروع في ArcGIS Pro:
-- افتح الملف: `ArcGIS_Pro_Project/Gaza_Damage_Assessment.aprx`
-- ستفتح الخريطة تلقائياً مع كافة الطبقات المصنفة برمزية الألوان المعتمدة ومسقط UTM Zone 36N.
+- افتح الملف: `ArcGIS_Pro_Project/Gaza_Damage_Assessment.aprx` (المسارات نسبية — الطبقات تُحمَّل تلقائياً من مجلد `Gaza_City_Focus/`).
+- ستُفتح الخريطة `Gaza_Master_Thesis_Analysis` بطبقات مواقع UNOSAT مصنّفة الألوان حسب درجات الدمار + مراحل المرئيات الأربع + مؤشر dNDVI، بمسقط UTM Zone 36N.
+- لاستخدام قاعدة التحليل الكاملة: فُك ضغط `Gaza_GIS_Master_GDB.zip` (6 طبقات: المباني المصنفة 326,448 بصمة، نقاط UNOSAT 170,835، شبكة البؤر الساخنة، المحافظات، الأحياء).
+- **إخراج الخرائط من ArcGIS Pro:** افتح الـ Layout `إخراج_خريطة_تدمير_مدينة_غزة_A3` ثم `Share → Export Layout` بدقة 300 DPI (A3 Landscape) واحفظ الناتج في `04_Cartographic_Exports/`.
 
 ### 2. إعادة تشغيل خط أنابيب المعالجة (Python Automation):
 يتطلب المشروع تثبيت بيئة بايثون مع مكتبات `geopandas`, `rasterio`, `pyogrio`, `pillow`:
 ```bash
+# تصدير الخرائط الكارتوغرافية A3 (300 DPI) مباشرة من قاعدة البيانات الجغرافية
+uv run --with geopandas --with rasterio --with pyogrio --with pillow --with arabic-reshaper --with python-bidi python scripts/export_gis_cartographic_maps.py
+
 # توليد المرئيات وتصنيف الدمار
 uv run --with geopandas --with rasterio --with pyogrio --with pillow python scripts/generate_pristine_map_panels.py
 
@@ -114,6 +125,15 @@ uv run python scripts/build_flawless_a3_plate.py
 
 ### 3. استعراض العرض التفاعلي:
 افتح الملف `06_Minimalist_Web_and_Deck/index.html` في أي متصفح ويب لاستعراض المقارنة الزمنية المزدوجة بين المرئيات والأحياء.
+
+---
+
+## 🧾 ملاحظات إسناد البيانات (Data Provenance Notes)
+
+- **`01_Raw_Data/UNOSAT_Damage_Points_Raw.dbf`:** تم استرجاع جدول السمات المفقود (170,835 سجلاً) من نسخة الطبقات المحفوظة داخل `Gaza_GIS_Master_GDB.zip`، مع التحقق المطابق 100% من ترتيب وإحداثيات النقاط.
+- **`ArcGIS_Pro_Project/Gaza_City_Focus/*.tif`:** مرئيات GeoTIFF مرجعية جيومكانياً (10م/بكسل، UTM 36N، المدى 629000–645500E / 3476500–3493000N) مُستخلصة من اللوحات الكارتوغرافية المصدَّرة للمشروع — **يُستبدل بالملفات الأصلية Sentinel-2 L2A عند توفرها بنفس الأسماء**.
+- **`Gaza_City_dNDVI.tif`:** بروكسي تغير أخضر (فرق مؤشر أخضرية RGB بين خط الأساس والوضع الراهن) — **ليس NDVI طيفياً**، ويُستبدل بالمنتج الأصلي عند توفره.
+- **`04_Cartographic_Exports/01–03`:** خرائط A3 مولَّدة مباشرة من طبقات الـ GDB (سكربت `scripts/export_gis_cartographic_maps.py`)، وقابلة للاستبدال بإخراج الـ Layout من ArcGIS Pro.
 
 ---
 
