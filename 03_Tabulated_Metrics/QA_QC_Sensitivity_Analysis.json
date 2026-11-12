@@ -1,0 +1,14 @@
+{
+  "search_radius_0m": {
+    "matched_unique_buildings": 131182,
+    "percentage_of_total_stock": 40.18
+  },
+  "search_radius_3m": {
+    "matched_unique_buildings": 161833,
+    "percentage_of_total_stock": 49.57
+  },
+  "search_radius_5m": {
+    "matched_unique_buildings": 175692,
+    "percentage_of_total_stock": 53.82
+  }
+}

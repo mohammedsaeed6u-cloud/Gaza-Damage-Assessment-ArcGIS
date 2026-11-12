@@ -1,0 +1,40 @@
+# ==============================================================================
+# GITIGNORE: Gaza Strip Urban Damage Assessment (ArcGIS Pro & Remote Sensing)
+# ==============================================================================
+
+# 1. Raw Heavy Rasters (>100 MB each - exceed GitHub limits)
+*.tif
+*.tiff
+*.TIF
+*.TIFF
+
+# 2. Giant Raw Source Dumps (>100 MB)
+01_Raw_Data/gaza_osm_buildings_baseline_pre_conflict.geojson
+01_Raw_Data/UNOSAT_Damage_Points_Raw.dbf
+02_Geodatabase/Buildings_Damage_Master.dbf
+
+# 3. ArcGIS Pro & ArcPy Temporary Locks
+*.lock
+*.sr.lock
+*.ed.lock
+*.xml
+*.cpg
+
+# 4. Python runtime artifacts
+__pycache__/
+*.py[cod]
+*.class
+.venv/
+env/
+venv/
+.env
+
+# 5. OS Metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+
+02_Geodatabase/
+
+# Ignore uncompressed geodatabase directories (use the clean 47MB Gaza_GIS_Master_GDB.zip)
+*.gdb/

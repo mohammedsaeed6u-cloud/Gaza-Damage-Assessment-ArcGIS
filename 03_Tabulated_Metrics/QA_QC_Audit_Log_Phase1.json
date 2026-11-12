@@ -1,0 +1,36 @@
+{
+  "execution_timestamp": "2026-11-12T12:28:59Z",
+  "target_crs": "EPSG:32636",
+  "stages": {
+    "administrative_boundaries": {
+      "source": "D:\\Gaza_Damage_Assessment_Project\\01_Raw_Data\\OCHA_Admin_Boundaries\\pse_admin2.shp",
+      "input_features": 16,
+      "filtered_gaza_governorates": 5,
+      "total_gaza_area_sqkm": 364.87614797033393,
+      "null_geometries_deleted": 0,
+      "crs": "EPSG:32636"
+    },
+    "building_footprints": {
+      "source": "D:\\Gaza_Damage_Assessment_Project\\01_Raw_Data\\gaza_osm_buildings_baseline_pre_conflict.geojson",
+      "raw_feature_count": 330140,
+      "repaired_geometries": 0,
+      "micro_slivers_removed_lt_10sqm": 3708,
+      "clean_footprints_count": 326448,
+      "total_built_up_area_sqm": 52925870.12024413,
+      "total_built_up_area_sqkm": 52.92587012024413,
+      "crs": "EPSG:32636"
+    },
+    "unosat_points": {
+      "source": "D:\\Gaza_Damage_Assessment_Project\\01_Raw_Data\\UNOSAT_Damage_Points_Raw.shp",
+      "raw_points_count": 170835,
+      "clipped_points_count": 170835,
+      "destroyed_code_1": 60373,
+      "severe_code_2": 20065,
+      "moderate_code_3": 56295,
+      "possible_code_4": 34102,
+      "total_confirmed_damage_1_to_3": 136733,
+      "crs": "EPSG:32636"
+    }
+  },
+  "execution_duration_seconds": 204.17
+}
