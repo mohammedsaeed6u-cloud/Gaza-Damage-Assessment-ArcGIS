@@ -760,8 +760,9 @@ with open(html_path, "w", encoding="utf-8") as f:
 print(f"Master A3 HTML saved: {html_path}")
 
 # Render to PNG and PDF using Headless Google Chrome
-out_png = os.path.join(DESKTOP, "خريطة_تحليل_تدمير_مدينة_غزة_A3_بيضاء.png")
-out_pdf = os.path.join(DESKTOP, "خريطة_تحليل_تدمير_مدينة_غزة_A3_بيضاء.pdf")
+out_name = "خريطة_تحليل_تدمير_مدينة_غزة_A3_المعتمدة"
+out_png = os.path.join(DESKTOP, f"{out_name}.png")
+out_pdf = os.path.join(DESKTOP, f"{out_name}.pdf")
 
 print("Rendering high-resolution A3 Landscape PNG via Google Chrome...")
 cmd_png = [
@@ -789,12 +790,12 @@ cmd_pdf = [
 subprocess.run(cmd_pdf, check=True)
 print(f"Master PDF rendered: {out_pdf} ({os.path.getsize(out_pdf)} bytes)")
 
-# Also mirror to project cartographic exports
-proj_exports = r"D:\Gaza_Damage_Assessment_Project\04_Cartographic_Exports"
+# Also mirror to project 03_Exported_ArcGIS_Layouts
+proj_exports = r"D:\Gaza_Damage_Assessment_Project\03_Exported_ArcGIS_Layouts"
 os.makedirs(proj_exports, exist_ok=True)
 import shutil
-shutil.copy2(out_png, os.path.join(proj_exports, "خريطة_تحليل_تدمير_مدينة_غزة_A3_بيضاء.png"))
-shutil.copy2(out_pdf, os.path.join(proj_exports, "خريطة_تحليل_تدمير_مدينة_غزة_A3_بيضاء.pdf"))
-print("Mirrored master plate to 04_Cartographic_Exports!")
+shutil.copy2(out_png, os.path.join(proj_exports, f"{out_name}.png"))
+shutil.copy2(out_pdf, os.path.join(proj_exports, f"{out_name}.pdf"))
+print(f"Mirrored master plate to 03_Exported_ArcGIS_Layouts!")
 
 print("COMPLETED FLAWLESS A3 PLATE RENDERING!")
