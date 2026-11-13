@@ -38,3 +38,4 @@ desktop.ini
 
 # Ignore uncompressed geodatabase directories (use the clean 47MB Gaza_GIS_Master_GDB.zip)
 *.gdb/
+scratch/
