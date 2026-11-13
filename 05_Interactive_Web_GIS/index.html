@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منظومة التقييم الجيومكاني الشامل لرصد مراحل تدمير قطاع غزة (2023 - 2026)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- MapLibre GL JS -->
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: #FFFFFF; color: #0F172A; }
+        .map-container { position: relative; width: 100%; height: 600px; border-radius: 16px; overflow: hidden; }
+        #map { width: 100%; height: 100%; }
+        .chapter-card.active { border-color: #1D4ED8; background-color: #EFF6FF; }
+        /* Swipe Curtain Styles */
+        .swipe-wrap { position: relative; width: 100%; height: 500px; overflow: hidden; border-radius: 16px; }
+        .swipe-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .swipe-before { z-index: 1; }
+        .swipe-after { z-index: 2; clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%); }
+        .swipe-handle {
+            position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; background: #FFFFFF;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5); z-index: 10; cursor: ew-resize;
+        }
+        .swipe-circle {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 40px; height: 40px; background: #1D4ED8; color: #FFFFFF; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3); border: 2px solid #FFFFFF;
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen text-slate-900">
+
+    <!-- TOP NAVIGATION & HEADER -->
+    <header class="border-b border-slate-200 bg-white sticky top-0 z-50 shadow-xs">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-blue-700 text-white font-black text-xl flex items-center justify-center shadow-md">
+                    GIS
+                </div>
+                <div>
+                    <h1 class="text-xl font-black text-slate-900 leading-tight">منظومة التقييم الجيومكاني الشامل لرصد مراحل تدمير قطاع غزة</h1>
+                    <p class="text-xs font-semibold text-slate-500">كامل قطاع غزة (المحافظات الخمس — 365 كم²) • مركز UNOSAT • مرئيات Sentinel-2 • مسقط UTM 36N</p>
+                </div>
+            </div>
+            <!-- Quick Anchor Buttons -->
+            <div class="flex items-center gap-2">
+                <a href="#flyto-story" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl border border-slate-300 transition">
+                    🗺️ الرحلة المكانية (Fly-To)
+                </a>
+                <a href="#swipe-section" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl border border-slate-300 transition">
+                    ⚡ ساتر المقارنة (Swipe)
+                </a>
+                <a href="#downloads-hub" class="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-xl shadow-sm transition">
+                    📥 مركز التحميل المباشر
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-8 space-y-12">
+
+        <!-- MASTER KPI STATS ROW -->
+        <section class="grid grid-cols-2 md:grid-cols-4 gap-5">
+            <div class="p-6 bg-slate-50 border border-slate-200 rounded-2xl text-center shadow-xs">
+                <div class="text-xs font-bold text-slate-500 mb-1">إجمالي المنشآت المتضررة</div>
+                <div class="text-3xl md:text-4xl font-black text-red-700">163,940</div>
+                <div class="text-xs font-bold text-red-600 mt-2">منشأة مؤكدة عبر الأقمار الصناعية</div>
+            </div>
+            <div class="p-6 bg-slate-50 border border-slate-200 rounded-2xl text-center shadow-xs">
+                <div class="text-xs font-bold text-slate-500 mb-1">نسبة التضرر الكلية</div>
+                <div class="text-3xl md:text-4xl font-black text-orange-600">66.4%</div>
+                <div class="text-xs font-bold text-orange-600 mt-2">من إجمالي المباني السابقة (PCBS)</div>
+            </div>
+            <div class="p-6 bg-slate-50 border border-slate-200 rounded-2xl text-center shadow-xs">
+                <div class="text-xs font-bold text-slate-500 mb-1">متوسط الكثافة التدميرية</div>
+                <div class="text-3xl md:text-4xl font-black text-amber-600">449</div>
+                <div class="text-xs font-bold text-amber-600 mt-2">منشأة متضررة / كم²</div>
+            </div>
+            <div class="p-6 bg-slate-50 border border-slate-200 rounded-2xl text-center shadow-xs">
+                <div class="text-xs font-bold text-slate-500 mb-1">حجم الركام المقدر (UNEP)</div>
+                <div class="text-3xl md:text-4xl font-black text-blue-700">42.5 Mt</div>
+                <div class="text-xs font-bold text-blue-700 mt-2">مليون طن متري من الأنقاض</div>
+            </div>
+        </section>
+
+        <!-- FLY-TO STORYMAP SECTION (10 CHAPTERS ACROSS 5 GOVERNORATES) -->
+        <section id="flyto-story" class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-6">
+            <div class="flex justify-between items-center flex-wrap gap-2">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900">الرحلة التفاعلية بين محافظات قطاع غزة الخمس (Interactive Fly-To)</h2>
+                    <p class="text-sm font-semibold text-slate-500">انقر على أي فصل للانتقال الجغرافي الفوري، واستعراض الإحصائيات الرسمية والحدود الإدارية بدون أي تشويش نصي</p>
+                </div>
+                <span class="px-3.5 py-1.5 bg-blue-50 text-blue-700 text-xs font-black rounded-full border border-blue-200">خريطة نظيفة بدون نصوص مشوهة</span>
+            </div>
+
+            <!-- Chapter Buttons Navigation -->
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                <button onclick="goToChapter(0)" id="btn-c0" class="chapter-card active p-3 text-right border border-slate-200 rounded-xl transition">
+                    <div class="text-[11px] font-bold text-slate-400">[الفصل 1]</div>
+                    <div class="text-xs font-black text-slate-900 mt-1">كامل قطاع غزة</div>
+                    <div class="text-[10px] text-blue-600 font-semibold">365 كم² • الإجمالي</div>
+                </button>
+                <button onclick="goToChapter(1)" id="btn-c1" class="chapter-card p-3 text-right border border-slate-200 rounded-xl transition">
+                    <div class="text-[11px] font-bold text-slate-400">[الفصل 2]</div>
+                    <div class="text-xs font-black text-slate-900 mt-1">شمال غزة</div>
+                    <div class="text-[10px] text-blue-600 font-semibold">33,250 منشأة (78.2%)</div>
+                </button>
+                <button onclick="goToChapter(2)" id="btn-c2" class="chapter-card p-3 text-right border border-slate-200 rounded-xl transition">
+                    <div class="text-[11px] font-bold text-slate-400">[الفصل 3]</div>
+                    <div class="text-xs font-black text-slate-900 mt-1">محافظة غزة</div>
+                    <div class="text-[10px] text-blue-600 font-semibold">49,570 منشأة (74.5%)</div>
+                </button>
+                <button onclick="goToChapter(3)" id="btn-c3" class="chapter-card p-3 text-right border border-slate-200 rounded-xl transition">
+                    <div class="text-[11px] font-bold text-slate-400">[الفصل 4]</div>
+                    <div class="text-xs font-black text-slate-900 mt-1">دير البلح (الوسطى)</div>
+                    <div class="text-[10px] text-blue-600 font-semibold">15,650 منشأة (51.4%)</div>
+                </button>
+                <button onclick="goToChapter(4)" id="btn-c4" class="chapter-card p-3 text-right border border-slate-200 rounded-xl transition">
+                    <div class="text-[11px] font-bold text-slate-400">[الفصل 5]</div>
+                    <div class="text-xs font-black text-slate-900 mt-1">محافظة خانيونس</div>
+                    <div class="text-[10px] text-blue-600 font-semibold">40,840 منشأة (63.1%)</div>
+                </button>
+            </div>
+
+            <!-- Second Row of Navigation -->
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                <button onclick="goToChapter(5)" id="btn-c5" class="chapter-card p-3 text-right border border-slate-200 rounded-xl transition">
+                    <div class="text-[11px] font-bold text-slate-400">[الفصل 6]</div>
+                    <div class="text-xs font-black text-slate-900 mt-1">محافظة رفح</div>
+                    <div class="text-[10px] text-blue-600 font-semibold">24,630 منشأة (58.6%)</div>
+                </button>
+                <button onclick="goToChapter(6)" id="btn-c6" class="chapter-card p-3 text-right border border-slate-200 rounded-xl transition">
+                    <div class="text-[11px] font-bold text-slate-400">[الفصل 7]</div>
+                    <div class="text-xs font-black text-slate-900 mt-1">المسار الزمني للمراحل</div>
+                    <div class="text-[10px] text-blue-600 font-semibold">5 مراحل فضائية</div>
+                </button>
+                <button onclick="goToChapter(7)" id="btn-c7" class="chapter-card p-3 text-right border border-slate-200 rounded-xl transition">
+                    <div class="text-[11px] font-bold text-slate-400">[الفصل 8]</div>
+                    <div class="text-xs font-black text-slate-900 mt-1">الكثافة الحرارية (Heatmap)</div>
+                    <div class="text-[10px] text-blue-600 font-semibold">Kernel Density 10m</div>
+                </button>
+                <button onclick="goToChapter(8)" id="btn-c8" class="chapter-card p-3 text-right border border-slate-200 rounded-xl transition">
+                    <div class="text-[11px] font-bold text-slate-400">[الفصل 9]</div>
+                    <div class="text-xs font-black text-slate-900 mt-1">لوحة A3 الماستر</div>
+                    <div class="text-[10px] text-blue-600 font-semibold">300 DPI معتمدة</div>
+                </button>
+                <button onclick="goToChapter(9)" id="btn-c9" class="chapter-card p-3 text-right border border-slate-200 rounded-xl transition">
+                    <div class="text-[11px] font-bold text-slate-400">[الفصل 10]</div>
+                    <div class="text-xs font-black text-slate-900 mt-1">البيانات والمراجع</div>
+                    <div class="text-[10px] text-blue-600 font-semibold">التوثيق العلمي الكامل</div>
+                </button>
+            </div>
+
+            <!-- Map & Side Details Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Map Area -->
+                <div class="lg:col-span-2 map-container border border-slate-200 shadow-xs">
+                    <div id="map"></div>
+                </div>
+
+                <!-- Side Info Panel -->
+                <div class="p-6 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span id="side-tag" class="w-3 h-3 rounded-full bg-blue-700"></span>
+                            <h3 id="side-title" class="text-xl font-black text-slate-900">قطاع غزة بالكامل</h3>
+                        </div>
+                        <p id="side-desc" class="text-xs text-slate-600 leading-relaxed">
+                            نطاق دراسة متكامل يشمل المحافظات الخمس من بيت حانون شمالاً إلى رفح جنوباً. يوضح التحليل تدمير 163,940 منشأة ومسح كتل عمرانية بنسبة تضرر 66.4%.
+                        </p>
+                    </div>
+
+                    <!-- Side Stats Mini-Grid -->
+                    <div class="grid grid-cols-2 gap-3 pt-3 border-t border-slate-200">
+                        <div class="p-3 bg-white rounded-xl border border-slate-200 text-center">
+                            <div class="text-[10px] font-bold text-slate-400">المنشآت المتضررة</div>
+                            <div id="side-damaged" class="text-lg font-black text-slate-900">163,940</div>
+                        </div>
+                        <div class="p-3 bg-white rounded-xl border border-slate-200 text-center">
+                            <div class="text-[10px] font-bold text-slate-400">نسبة التضرر</div>
+                            <div id="side-pct" class="text-lg font-black text-red-700">66.4%</div>
+                        </div>
+                        <div class="p-3 bg-white rounded-xl border border-slate-200 text-center">
+                            <div class="text-[10px] font-bold text-slate-400">الكثافة / كم²</div>
+                            <div id="side-density" class="text-lg font-black text-amber-600">449</div>
+                        </div>
+                        <div class="p-3 bg-white rounded-xl border border-slate-200 text-center">
+                            <div class="text-[10px] font-bold text-slate-400">الركام المقدر</div>
+                            <div id="side-debris" class="text-lg font-black text-blue-700">42.5 Mt</div>
+                        </div>
+                    </div>
+
+                    <!-- External Legend Dock -->
+                    <div class="p-3 bg-white rounded-xl border border-slate-200 space-y-2">
+                        <div class="text-xs font-black text-slate-800">مفتاح الحدود (خارج الخريطة):</div>
+                        <div class="text-[11px] font-bold space-y-1">
+                            <div class="flex items-center gap-2"><span class="w-3 h-1 bg-[#1D4ED8] rounded"></span> <span>شمال غزة (61 كم²)</span></div>
+                            <div class="flex items-center gap-2"><span class="w-3 h-1 bg-[#7E22CE] rounded"></span> <span>غزة (74 كم²)</span></div>
+                            <div class="flex items-center gap-2"><span class="w-3 h-1 bg-[#047857] rounded"></span> <span>دير البلح (58 كم²)</span></div>
+                            <div class="flex items-center gap-2"><span class="w-3 h-1 bg-[#B45309] rounded"></span> <span>خانيونس (108 كم²)</span></div>
+                            <div class="flex items-center gap-2"><span class="w-3 h-1 bg-[#0F766E] rounded"></span> <span>رفح (64 كم²)</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- INTERACTIVE BEFORE/AFTER SWIPE CURTAIN -->
+        <section id="swipe-section" class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-6">
+            <div class="flex justify-between items-center flex-wrap gap-2">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900">ساتر المقارنة التفاعلي قبل وبعد (Interactive Swipe Slider)</h2>
+                    <p class="text-sm font-semibold text-slate-500">حرك المقبض يميناً ويساراً لمقارنة خط الأساس قبل الحرب (أكتوبر 2023) مع الوضع الراهن الشامل (2026)</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-lg border border-emerald-200">اليمين: قبل الحرب (أكتوبر 2023)</span>
+                    <span class="px-3 py-1 bg-red-50 text-red-700 text-xs font-bold rounded-lg border border-red-200">اليسار: الوضع الراهن (نوفمبر 2026)</span>
+                </div>
+            </div>
+
+            <!-- Swipe Container -->
+            <div class="swipe-wrap border border-slate-200 shadow-xs" id="swipeContainer">
+                <img src="../02_Master_Cartographic_Plates/frames/frame_1_baseline_2023.png" class="swipe-img swipe-before" alt="قبل الحرب">
+                <img src="../02_Master_Cartographic_Plates/frames/frame_3_current_2026.png" class="swipe-img swipe-after" id="swipeAfter" alt="بعد التدمير">
+                <div class="swipe-handle" id="swipeHandle">
+                    <div class="swipe-circle">↔</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CHART & DETAILED GOVERNORATES BREAKDOWN TABLE -->
+        <section class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-6">
+            <div>
+                <h2 class="text-2xl font-black text-slate-900">الرسم البياني والجدول الإحصائي الشامل للمحافظات الخمس</h2>
+                <p class="text-sm font-semibold text-slate-500">مقارنة رسمية موثقة مستخرجة من قاعدة البيانات الجغرافية Gaza_FullStrip_Master.gdb</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+                <!-- Chart Canvas with reserved label margin -->
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+                    <canvas id="govDamageChart" height="260"></canvas>
+                </div>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-slate-100 text-slate-800 font-bold border-b border-slate-200">
+                            <tr>
+                                <th class="py-3 px-3">المحافظة</th>
+                                <th class="py-3 px-3">المساحة</th>
+                                <th class="py-3 px-3 text-red-700">مدمر كلياً</th>
+                                <th class="py-3 px-3 text-orange-600">دمار شديد</th>
+                                <th class="py-3 px-3 text-amber-600">دمار متوسط</th>
+                                <th class="py-3 px-3 font-black text-slate-900">الإجمالي</th>
+                                <th class="py-3 px-3">النسبة</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr>
+                                <td class="py-3 px-3 font-bold text-blue-700">شمال غزة</td>
+                                <td class="py-3 px-3 text-slate-600">61 كم²</td>
+                                <td class="py-3 px-3 text-red-700 font-bold">14,850</td>
+                                <td class="py-3 px-3 text-orange-600">8,920</td>
+                                <td class="py-3 px-3 text-amber-600">9,480</td>
+                                <td class="py-3 px-3 font-black">33,250</td>
+                                <td class="py-3 px-3 font-bold text-red-600">78.2%</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-3 font-bold text-purple-700">محافظة غزة</td>
+                                <td class="py-3 px-3 text-slate-600">74 كم²</td>
+                                <td class="py-3 px-3 text-red-700 font-bold">21,340</td>
+                                <td class="py-3 px-3 text-orange-600">11,810</td>
+                                <td class="py-3 px-3 text-amber-600">16,420</td>
+                                <td class="py-3 px-3 font-black">49,570</td>
+                                <td class="py-3 px-3 font-bold text-red-600">74.5%</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-3 font-bold text-emerald-700">دير البلح (الوسطى)</td>
+                                <td class="py-3 px-3 text-slate-600">58 كم²</td>
+                                <td class="py-3 px-3 text-red-700 font-bold">5,410</td>
+                                <td class="py-3 px-3 text-orange-600">4,230</td>
+                                <td class="py-3 px-3 text-amber-600">6,010</td>
+                                <td class="py-3 px-3 font-black">15,650</td>
+                                <td class="py-3 px-3 font-bold text-red-600">51.4%</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-3 font-bold text-amber-700">محافظة خانيونس</td>
+                                <td class="py-3 px-3 text-slate-600">108 كم²</td>
+                                <td class="py-3 px-3 text-red-700 font-bold">15,220</td>
+                                <td class="py-3 px-3 text-orange-600">10,640</td>
+                                <td class="py-3 px-3 text-amber-600">14,980</td>
+                                <td class="py-3 px-3 font-black">40,840</td>
+                                <td class="py-3 px-3 font-bold text-red-600">63.1%</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-3 font-bold text-teal-700">محافظة رفح</td>
+                                <td class="py-3 px-3 text-slate-600">64 كم²</td>
+                                <td class="py-3 px-3 text-red-700 font-bold">10,910</td>
+                                <td class="py-3 px-3 text-orange-600">5,830</td>
+                                <td class="py-3 px-3 text-amber-600">7,890</td>
+                                <td class="py-3 px-3 font-black">24,630</td>
+                                <td class="py-3 px-3 font-bold text-red-600">58.6%</td>
+                            </tr>
+                            <tr class="bg-slate-100 font-black border-t-2 border-slate-300">
+                                <td class="py-3.5 px-3 text-slate-900">الإجمالي العام</td>
+                                <td class="py-3.5 px-3">365 كم²</td>
+                                <td class="py-3.5 px-3 text-red-700">67,730</td>
+                                <td class="py-3.5 px-3 text-orange-700">41,430</td>
+                                <td class="py-3.5 px-3 text-amber-700">54,780</td>
+                                <td class="py-3.5 px-3 text-slate-900 text-sm">163,940</td>
+                                <td class="py-3.5 px-3 text-blue-700">66.4%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- DOWNLOADS & DELIVERABLES HUB -->
+        <section id="downloads-hub" class="bg-slate-50 border border-slate-200 rounded-3xl p-8 space-y-6">
+            <div class="text-center max-w-2xl mx-auto">
+                <h2 class="text-2xl font-black text-slate-900">مركز تحميل مخرجات المشروع المعتمدة</h2>
+                <p class="text-xs font-semibold text-slate-500 mt-1">كافة المخرجات التنفيذية والأكاديمية متاحة للتحميل المباشر بجودة 300 DPI وكود مصدري كامل</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <!-- Item 1: Manual PDF -->
+                <div class="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 font-bold flex items-center justify-center mb-3">📄</div>
+                        <h3 class="text-base font-black text-slate-900">دليل العمل التطبيقي في ArcGIS Pro</h3>
+                        <p class="text-xs text-slate-500 mt-1">دليل A4 مصور من 6 فصول يشرح تطبيق الأدوات خطوة بخطوة بدون أي معادلات معقدة.</p>
+                    </div>
+                    <a href="downloads/دليل_خطوات_العمل_التطبيقي_ArcGIS_Pro.pdf" download class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl text-center transition">
+                        تحميل الدليل PDF (0.8 MB)
+                    </a>
+                </div>
+
+                <!-- Item 2: Master A3 Plate -->
+                <div class="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 font-bold flex items-center justify-center mb-3">🗺️</div>
+                        <h3 class="text-base font-black text-slate-900">لوحة الماستر الكارتوغرافية A3</h3>
+                        <p class="text-xs text-slate-500 mt-1">لوحة 300 DPI خالية تماماً من التسميات المشوهة مع مفتاح خارجي شامل ورسم بياني.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="downloads/Gaza_FullStrip_Master_A3_Plate.pdf" download class="flex-1 py-2.5 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-xl text-center transition">
+                            PDF للطباعة
+                        </a>
+                        <a href="downloads/Gaza_FullStrip_Master_A3_Plate.png" download class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl text-center border border-slate-300 transition">
+                            PNG (6.5 MB)
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Item 3: PowerPoint Deck -->
+                <div class="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 font-bold flex items-center justify-center mb-3">📊</div>
+                        <h3 class="text-base font-black text-slate-900">العرض التقديمي الأصلي (.pptx)</h3>
+                        <p class="text-xs text-slate-500 mt-1">عرض تقديمي من 12 شريحة عريضة 16:9 بتنسيق أبيض أنيق وخط Cairo معتمد.</p>
+                    </div>
+                    <a href="downloads/العرض_التقديمي_تدمير_قطاع_غزة.pptx" download class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl text-center transition">
+                        تحميل العرض PPTX
+                    </a>
+                </div>
+
+                <!-- Item 4: ArcGIS Pro Project & GDB -->
+                <div class="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 font-bold flex items-center justify-center mb-3">💻</div>
+                        <h3 class="text-base font-black text-slate-900">مشروع ArcGIS Pro وقاعدة GDB</h3>
+                        <p class="text-xs text-slate-500 mt-1">ملف المشروع .aprx وقاعدة البيانات Geodatabase تضم كافة طبقات المحافظات ونقاط UNOSAT.</p>
+                    </div>
+                    <a href="downloads/Gaza_FullStrip_ArcGIS_Package.zip" download class="w-full py-2.5 bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold rounded-xl text-center transition">
+                        تحميل حزمة ArcGIS Pro ZIP (3.0 MB)
+                    </a>
+                </div>
+
+                <!-- Item 5: CSV Statistics -->
+                <div class="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 font-bold flex items-center justify-center mb-3">📁</div>
+                        <h3 class="text-base font-black text-slate-900">جدول البيانات الإحصائية (CSV)</h3>
+                        <p class="text-xs text-slate-500 mt-1">الأرقام التفصيلية المعتمدة لكل محافظة (المساحات، التعداد، فئات الدمار، والركام).</p>
+                    </div>
+                    <a href="downloads/governorate_stats.csv" download class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl text-center transition">
+                        تحميل البيانات CSV
+                    </a>
+                </div>
+
+                <!-- Item 6: Official References -->
+                <div class="p-6 bg-white border border-slate-200 rounded-2xl shadow-xs flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 font-bold flex items-center justify-center mb-3">📚</div>
+                        <h3 class="text-base font-black text-slate-900">بيانات التوثيق والمراجع الرسمية</h3>
+                        <p class="text-xs text-slate-500 mt-1">توثيق شامل لمصادر الأقمار الصناعية (UNOSAT, ESA, OCHA, UNEP, PCBS).</p>
+                    </div>
+                    <a href="data/governorate_stats.json" target="_blank" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl text-center border border-slate-300 transition">
+                        استعراض التوثيق JSON
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-slate-200 py-8 text-center text-xs text-slate-500 bg-white">
+        منظومة التقييم الجيومكاني الشامل لرصد مراحل تدمير قطاع غزة (2023 — 2026) • مسقط WGS 1984 UTM Zone 36N
+    </footer>
+
+    <!-- INTERACTIVE JAVASCRIPT LOGIC -->
+    <script>
+        // 1. Initialize MapLibre GL Map (No text labels on basemap)
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: {
+                version: 8,
+                sources: {
+                    'osm': {
+                        type: 'raster',
+                        tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                        tileSize: 256
+                    }
+                },
+                layers: [{
+                    id: 'osm-layer',
+                    type: 'raster',
+                    source: 'osm',
+                    paint: { 'raster-opacity': 0.85 }
+                }]
+            },
+            center: [34.38, 31.42], // Full Gaza Strip Center
+            zoom: 10.2
+        });
+
+        // Add navigation controls
+        map.addControl(new maplibregl.NavigationControl(), 'top-left');
+
+        // Load Governorates GeoJSON
+        map.on('load', () => {
+            fetch('data/gaza_governorates_boundaries.geojson')
+                .then(res => res.json())
+                .then(data => {
+                    map.addSource('governorates', { type: 'geojson', data: data });
+
+                    // Governorates Outline Layer (Clean, No on-map labels)
+                    map.addLayer({
+                        id: 'gov-outline',
+                        type: 'line',
+                        source: 'governorates',
+                        paint: {
+                            'line-color': [
+                                'match', ['get', 'Gov_Name_A'],
+                                'شمال غزة', '#1D4ED8',
+                                'غزة', '#7E22CE',
+                                'دير البلح', '#047857',
+                                'خان يونس', '#B45309',
+                                'رفح', '#0F766E',
+                                '#1E3A8A'
+                            ],
+                            'line-width': 2.5,
+                            'line-dasharray': [2, 1]
+                        }
+                    });
+                });
+        });
+
+        // 2. Chapter FlyTo Navigation Definitions
+        const chapters = [
+            {
+                center: [34.38, 31.42],
+                zoom: 10.2,
+                title: "قطاع غزة بالكامل — الإجمالي العام",
+                tagColor: "#1D4ED8",
+                desc: "نطاق دراسة متكامل يشمل المحافظات الخمس من بيت حانون شمالاً إلى رفح جنوباً بمساحة 365 كم². يوضح التحليل المكاني تدمير 163,940 منشأة بنسبة تضرر 66.4% وتراكم 42.5 مليون طن من الركام.",
+                damaged: "163,940",
+                pct: "66.4%",
+                density: "449",
+                debris: "42.5 Mt"
+            },
+            {
+                center: [34.50, 31.54],
+                zoom: 12.0,
+                title: "محافظة شمال غزة",
+                tagColor: "#1D4ED8",
+                desc: "تشمل بيت حانون، بيت لاهيا، ومخيم جباليا. تعد أعلى محافظات القطاع تضرراً بنسبة 78.2% إثر الاجتياحات المتكررة وقصف المربعات السكنية.",
+                damaged: "33,250",
+                pct: "78.2%",
+                density: "545",
+                debris: "8.63 Mt"
+            },
+            {
+                center: [34.45, 31.50],
+                zoom: 12.2,
+                title: "محافظة غزة",
+                tagColor: "#7E22CE",
+                desc: "تشمل أحياء الرمال، الشجاعية، الزيتون، ومخيم الشاطئ. تضم أكبر عدد للمباني المدمرة كلياً في القطاع (21,340 منشأة) مع انهيار تام للكتلة التجارية.",
+                damaged: "49,570",
+                pct: "74.5%",
+                density: "670",
+                debris: "12.87 Mt"
+            },
+            {
+                center: [34.35, 31.42],
+                zoom: 12.0,
+                title: "محافظة دير البلح (الوسطى)",
+                tagColor: "#047857",
+                desc: "تشمل مخيمات النصيرات، البريج، المغازي، والزوايدة. استهدفت بعمليات مركزة مع استيعاب مناطق الساحل لمئات آلاف النازحين.",
+                damaged: "15,650",
+                pct: "51.4%",
+                density: "270",
+                debris: "4.06 Mt"
+            },
+            {
+                center: [34.30, 31.34],
+                zoom: 11.8,
+                title: "محافظة خانيونس",
+                tagColor: "#B45309",
+                desc: "تشمل خانيونس البلد، مخيم خانيونس، عبسان، وخزاعة. شهدت تسوية مدينة حمد وأبراجها السكنية بالأرض وحصاراً مكثفاً لمحيط المشافي.",
+                damaged: "40,840",
+                pct: "63.1%",
+                density: "378",
+                debris: "10.59 Mt"
+            },
+            {
+                center: [34.25, 31.28],
+                zoom: 12.0,
+                title: "محافظة رفح",
+                tagColor: "#0F766E",
+                desc: "تشمل مدينة رفح، تل السلطان، الشابورة، ومحور فيلادلفيا. تأثرت بشكل واسع بالاجتياح البري للقطاع الجنوبي والمعبر.",
+                damaged: "24,630",
+                pct: "58.6%",
+                density: "385",
+                debris: "6.35 Mt"
+            },
+            {
+                center: [34.38, 31.42],
+                zoom: 10.4,
+                title: "التسلسل الزمني للمراحل (Sentinel-2)",
+                tagColor: "#2563EB",
+                desc: "5 مراحل رصد فضائي موثقة (أكتوبر 2023 خط الأساس، يناير 2024 الشمال، أغسطس 2024 خانيونس، سبتمبر 2025 رفح، ونوفمبر 2026 الراهن).",
+                damaged: "163,940",
+                pct: "66.4%",
+                density: "449",
+                debris: "42.5 Mt"
+            },
+            {
+                center: [34.38, 31.42],
+                zoom: 10.4,
+                title: "الكثافة الحرارية وبؤر تركز الدمار",
+                tagColor: "#B91C1C",
+                desc: "تحليل النواة Kernel Density بدقة 10م يبرز 5 بؤر تركز رئيسية في جباليا، الشجاعية، خانيونس المركز، ومحور فيلادلفيا.",
+                damaged: "163,940",
+                pct: "66.4%",
+                density: "449",
+                debris: "42.5 Mt"
+            },
+            {
+                center: [34.38, 31.42],
+                zoom: 10.2,
+                title: "لوحة A3 الماستر المعتمدة",
+                tagColor: "#1D4ED8",
+                desc: "تضم 5 إطارات متزامنة بدون أي نصوص مشوهة، ومفتاح خريطة خارجي شامل، ومقياس رسم خطي متري، ورسم بياني معتمد.",
+                damaged: "163,940",
+                pct: "66.4%",
+                density: "449",
+                debris: "42.5 Mt"
+            },
+            {
+                center: [34.38, 31.42],
+                zoom: 10.2,
+                title: "قائمة البيانات والمراجع المعتمدة",
+                tagColor: "#475569",
+                desc: "توثيق شامل وفق معايير UNITAR/UNOSAT ووكالة الفضاء الأوروبية ESA ومكتب الشؤون الإنسانية OCHA ونموذج UNEP للركام.",
+                damaged: "163,940",
+                pct: "66.4%",
+                density: "449",
+                debris: "42.5 Mt"
+            }
+        ];
+
+        function goToChapter(idx) {
+            document.querySelectorAll('.chapter-card').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-c' + idx).classList.add('active');
+
+            const c = chapters[idx];
+            map.flyTo({ center: c.center, zoom: c.zoom, duration: 1500 });
+
+            document.getElementById('side-title').innerText = c.title;
+            document.getElementById('side-desc').innerText = c.desc;
+            document.getElementById('side-tag').style.backgroundColor = c.tagColor;
+            document.getElementById('side-damaged').innerText = c.damaged;
+            document.getElementById('side-pct').innerText = c.pct;
+            document.getElementById('side-density').innerText = c.density;
+            document.getElementById('side-debris').innerText = c.debris;
+        }
+
+        // 3. Interactive Before/After Swipe Slider Logic
+        const container = document.getElementById('swipeContainer');
+        const afterImg = document.getElementById('swipeAfter');
+        const handle = document.getElementById('swipeHandle');
+
+        function moveSwipe(e) {
+            const rect = container.getBoundingClientRect();
+            let x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+            x = Math.max(0, Math.min(x, rect.width));
+            const pct = (x / rect.width) * 100;
+            handle.style.left = pct + '%';
+            afterImg.style.clipPath = `polygon(0 0, ${pct}% 0, ${pct}% 100%, 0 100%)`;
+        }
+
+        let isDragging = false;
+        container.addEventListener('mousedown', () => isDragging = true);
+        window.addEventListener('mouseup', () => isDragging = false);
+        window.addEventListener('mousemove', (e) => { if (isDragging) moveSwipe(e); });
+
+        container.addEventListener('touchstart', () => isDragging = true);
+        window.addEventListener('touchend', () => isDragging = false);
+        window.addEventListener('touchmove', (e) => { if (isDragging) moveSwipe(e); });
+
+        // 4. Chart.js Horizontal Stacked Bar Chart
+        const ctx = document.getElementById('govDamageChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['شمال غزة', 'محافظة غزة', 'دير البلح', 'خانيونس', 'محافظة رفح'],
+                datasets: [
+                    { label: 'مدمر كلياً', data: [14850, 21340, 5410, 15220, 10910], backgroundColor: '#B91C1C' },
+                    { label: 'دمار شديد', data: [8920, 11810, 4230, 10640, 5830], backgroundColor: '#EA580C' },
+                    { label: 'دمار متوسط', data: [9480, 16420, 6010, 14980, 7890], backgroundColor: '#F59E0B' }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { stacked: true, grid: { color: '#F1F5F9' } },
+                    y: { stacked: true, grid: { display: false }, ticks: { font: { family: 'Cairo', weight: 'bold', size: 12 } } }
+                },
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { family: 'Cairo', weight: 'bold' } } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>دليل خطوات العمل التطبيقي في ArcGIS Pro لتقييم أضرار قطاع غزة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        @page { size: A4 portrait; margin: 18mm 18mm 20mm 18mm; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #FFFFFF;
+            color: #0F172A;
+            line-height: 1.6;
+            font-size: 13px;
+        }
+
+        .cover-page {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            page-break-after: always;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .cover-badge {
+            display: inline-block;
+            background-color: #EFF6FF;
+            color: #1D4ED8;
+            font-weight: 800;
+            font-size: 14px;
+            padding: 8px 20px;
+            border-radius: 999px;
+            border: 1px solid #BFDBFE;
+            margin-bottom: 24px;
+        }
+        .cover-title {
+            font-size: 32px;
+            font-weight: 900;
+            color: #0F172A;
+            line-height: 1.3;
+            margin-bottom: 16px;
+        }
+        .cover-subtitle {
+            font-size: 16px;
+            font-weight: 600;
+            color: #475569;
+            max-width: 650px;
+            margin: 0 auto 30px auto;
+        }
+        .cover-meta {
+            background-color: #F8FAFC;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: right;
+            max-width: 550px;
+            margin: 0 auto;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+        .cover-meta strong { color: #0F172A; }
+
+        .page-header {
+            border-bottom: 1.5px solid #E2E8F0;
+            padding-bottom: 8px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748B;
+        }
+
+        .chapter {
+            page-break-after: always;
+            padding-top: 10px;
+        }
+        .chapter-badge {
+            font-size: 12px;
+            font-weight: 800;
+            color: #1D4ED8;
+            background-color: #EFF6FF;
+            padding: 4px 12px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .chapter-title {
+            font-size: 22px;
+            font-weight: 900;
+            color: #0F172A;
+            margin-bottom: 16px;
+            line-height: 1.3;
+            border-bottom: 2px solid #F1F5F9;
+            padding-bottom: 10px;
+        }
+        .chapter p {
+            font-size: 13px;
+            color: #334155;
+            margin-bottom: 14px;
+            text-align: justify;
+        }
+
+        .step-box {
+            background-color: #F8FAFC;
+            border: 1.5px solid #E2E8F0;
+            border-right: 4px solid #1D4ED8;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+        }
+        .step-num {
+            font-size: 14px;
+            font-weight: 800;
+            color: #1D4ED8;
+            margin-bottom: 6px;
+        }
+        .step-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #0F172A;
+            margin-bottom: 8px;
+        }
+        .tool-path {
+            background-color: #FFFFFF;
+            border: 1px solid #CBD5E1;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #0F172A;
+            margin: 8px 0;
+            display: inline-block;
+            direction: ltr;
+            text-align: left;
+        }
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        .param-table th {
+            background-color: #F1F5F9;
+            color: #1E293B;
+            font-weight: 800;
+            padding: 8px 12px;
+            border: 1px solid #E2E8F0;
+            text-align: right;
+        }
+        .param-table td {
+            padding: 8px 12px;
+            border: 1px solid #E2E8F0;
+            color: #334155;
+        }
+        .callout-tip {
+            background-color: #F0FDF4;
+            border: 1.5px solid #BBF7D0;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin: 14px 0;
+            font-size: 12px;
+            color: #166534;
+        }
+        .callout-tip strong { color: #14532D; }
+        .callout-warn {
+            background-color: #FEF2F2;
+            border: 1.5px solid #FECACA;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin: 14px 0;
+            font-size: 12px;
+            color: #991B1B;
+        }
+        .callout-warn strong { color: #7F1D1D; }
+    </style>
+</head>
+<body>
+
+    <!-- COVER PAGE -->
+    <div class="cover-page">
+        <div>
+            <div class="cover-badge">دليل العمل المخبري المعتمد • ArcGIS Pro 3.x</div>
+            <h1 class="cover-title">دليل خطوات العمل التطبيقي الشامل في ArcGIS Pro<br>لتقييم مراحل التدمير في كامل قطاع غزة</h1>
+            <p class="cover-subtitle">دليل إجرائي مفصل خطوة بخطوة موجه للباحثين ومختبرات نظم المعلومات الجغرافية والاستشعار عن بعد لدراسة وتحليل 163,940 منشأة متضررة وتطبيق أدوات التحليل المكاني المعياري</p>
+        </div>
+
+        <div class="cover-meta">
+            <strong>نظام الإسناد الجغرافي والمكاني:</strong> WGS 1984 UTM Zone 36N (EPSG: 32636)<br>
+            <strong>نطاق التحليل:</strong> كامل قطاع غزة (المحافظات الخمس بمساحة 365 كم²)<br>
+            <strong>مصادر البيانات:</strong> UNITAR / UNOSAT • ESA Copernicus Sentinel-2 • UN OCHA HDX<br>
+            <strong>البرمجيات المعتمدة:</strong> Esri ArcGIS Pro 3.0+ & Python ArcPy 3.0<br>
+            <strong>سنة التوثيق:</strong> 2026
+        </div>
+
+        <div style="font-size: 12px; color: #64748B;">
+            وحدة التحليل المكاني والاستشعار عن بعد • مشروع تقييم الدمار الشامل
+        </div>
+    </div>
+
+    <!-- CHAPTER 1 -->
+    <div class="chapter">
+        <div class="page-header">
+            <span>دليل العمل التطبيقي في ArcGIS Pro</span>
+            <span>الفصل 1: إنشاء قاعدة البيانات الجغرافية</span>
+        </div>
+        <span class="chapter-badge">الفصل الأول</span>
+        <h2 class="chapter-title">إنشاء قاعدة البيانات الجغرافية وتوحيد نظام الإسقاط</h2>
+        <p>
+            تعتمد سلامة التحليلات المكانية وقياس المساحات بدقة على توحيد نظام الإسناد الجغرافي لكافة الطبقات. تم اعتماد مسقط ميركاتور المستعرض العالمي UTM Zone 36N (WGS 84) المعتمد رسمياً في فلسطين وقطاع غزة، حيث يقاس بالمتر ويحقق دقة حسابية عالية للأطوال والمساحات.
+        </p>
+
+        <div class="step-box">
+            <div class="step-num">الخطوة 1.1</div>
+            <div class="step-title">إنشاء قاعدة البيانات الجغرافية المكانية (File Geodatabase)</div>
+            <p>من نافذة الكتالوج (Catalog Pane)، انقر بيمين الفأرة على مجلد المشروع واختر:</p>
+            <div class="tool-path">Catalog Pane -> Right-Click Folder -> New -> File Geodatabase</div>
+            <p>قم بتسمية قاعدة البيانات باسم: <strong>Gaza_FullStrip_Master.gdb</strong> واجعلها قاعدة البيانات الافتراضية للمشروع (Set as Default GDB).</p>
+        </div>
+
+        <div class="step-box">
+            <div class="step-num">الخطوة 1.2</div>
+            <div class="step-title">توحيد نظام الإسقاط للطبقات عبر أداة Project</div>
+            <p>إذا كانت الطبقات الخام محملة بنظام الإحداثيات الجغرافية WGS 1984 (EPSG: 4326)، يجب إعادة إسقاطها إلى UTM Zone 36N:</p>
+            <div class="tool-path">Geoprocessing -> Toolboxes -> Data Management Tools -> Projections and Transformations -> Project</div>
+            <table class="param-table">
+                <tr><th>المعامل (Parameter)</th><th>القيمة المطلوبة</th></tr>
+                <tr><td>Input Dataset</td><td>Gaza_Governorates_Raw.shp / UNOSAT_Points_Raw.shp</td></tr>
+                <tr><td>Output Dataset</td><td>Gaza_FullStrip_Master.gdb\Gaza_Governorates_ADM1</td></tr>
+                <tr><td>Output Coordinate System</td><td>WGS 1984 UTM Zone 36N (WKID: 32636)</td></tr>
+            </table>
+        </div>
+
+        <div class="callout-tip">
+            <strong>قاعدة هندسية:</strong> يجب أن تشترك جميع الطبقات في مسقط UTM 36N لتفادي أخطاء التحويل الفوري (On-the-fly Projection) أثناء حساب الكثافات والمساحات.
+        </div>
+    </div>
+
+    <!-- CHAPTER 2 -->
+    <div class="chapter">
+        <div class="page-header">
+            <span>دليل العمل التطبيقي في ArcGIS Pro</span>
+            <span>الفصل 2: معالجة وقص المرئيات الفضائية</span>
+        </div>
+        <span class="chapter-badge">الفصل الثاني</span>
+        <h2 class="chapter-title">استيراد ومعايرة وقص المرئيات الفضائية (Sentinel-2)</h2>
+        <p>
+            تغطي الدراسة 5 مراحل زمنية متتالية باستخدام مرئيات القمر الصناعي الأوروبي Sentinel-2 L2A بدقة مكانية 10 أمتار، خالية تماماً من الغيوم والدخان بنسبة تغطية 0.0% فوق كامل قطاع غزة.
+        </p>
+
+        <div class="step-box">
+            <div class="step-num">الخطوة 2.1</div>
+            <div class="step-title">دمج النطاقات الطيفية الطبيعية (Composite Bands)</div>
+            <p>لإنشاء مرئية ذات ألوان طبيعية حقيقية (True Color RGB):</p>
+            <div class="tool-path">Geoprocessing -> Data Management Tools -> Raster -> Raster Processing -> Composite Bands</div>
+            <table class="param-table">
+                <tr><th>المعامل</th><th>القيمة</th></tr>
+                <tr><td>Input Rasters</td><td>B04 (Red 665nm), B03 (Green 560nm), B02 (Blue 490nm)</td></tr>
+                <tr><td>Output Raster</td><td>Sentinel2_TrueColor_Composite.tif</td></tr>
+            </table>
+        </div>
+
+        <div class="step-box">
+            <div class="step-num">الخطوة 2.2</div>
+            <div class="step-title">قص المرئية على حدود قطاع غزة وإخفاء المناطق الخارجية (Clip Raster)</div>
+            <p>لقص المرئيات على مضلع قطاع غزة المعتمد وإخفاء البلدات الإسرائيلية المجاورة:</p>
+            <div class="tool-path">Geoprocessing -> Data Management Tools -> Raster -> Raster Processing -> Clip Raster</div>
+            <table class="param-table">
+                <tr><th>المعامل</th><th>القيمة</th></tr>
+                <tr><td>Input Raster</td><td>Sentinel2_TrueColor_Composite.tif</td></tr>
+                <tr><td>Output Extent</td><td>Gaza_Governorates_ADM1 (Boundary Polygon)</td></tr>
+                <tr><td>Use Input Features for Clipping Geometry</td><td>Checked (مفعل لقص الشكل الدقيق)</td></tr>
+                <tr><td>NoData Value</td><td>0 (يظهر شفافاً أو بلون البحر المحدد)</td></tr>
+            </table>
+        </div>
+
+        <div class="step-box">
+            <div class="step-num">الخطوة 2.3</div>
+            <div class="step-title">معايرة التباين الإشعاعي الموحد (Radiometric Stretch)</div>
+            <p>من لوحة Symbology للمرئية، اختر نمط التمدد Percent Clip مع ضبط الحد الأدنى على 2.0% والحد الأعلى على 98.0% مع قيمة Gamma موحدة = 1.15 لضمان تطابق الإضاءة بين المراحل الزمنية الخمس.</p>
+        </div>
+    </div>
+
+    <!-- CHAPTER 3 -->
+    <div class="chapter">
+        <div class="page-header">
+            <span>دليل العمل التطبيقي في ArcGIS Pro</span>
+            <span>الفصل 3: ترميز وتصنيف نقاط UNOSAT</span>
+        </div>
+        <span class="chapter-badge">الفصل الثالث</span>
+        <h2 class="chapter-title">إدخال وترميز نقاط التدمير المعتمدة (UNOSAT)</h2>
+        <p>
+            تضم قاعدة بيانات مركز الأمم المتحدة للأقمار الصناعية (UNOSAT) 163,940 منشأة متضررة مؤكدة تم رصدها عبر الأقمار الصناعية عالية الدقة (30-50 سم). يتم تمثيل كل منشأة بنقطة جغرافية مصنفة إلى 3 مستويات رئيسية للأضرار.
+        </p>
+
+        <div class="step-box">
+            <div class="step-num">الخطوة 3.1</div>
+            <div class="step-title">تطبيق التصنيف القيمي الفريد (Unique Values Symbology)</div>
+            <p>من لوحة Symbology الخاصة بطبقة UNOSAT_Damage_Points_FullStrip:</p>
+            <div class="tool-path">Layer Properties -> Symbology -> Primary Symbology: Unique Values</div>
+            <table class="param-table">
+                <tr><th>الفئة (Class)</th><th>الرمز واللون</th><th>الحجم</th><th>الإجمالي بالقطاع</th></tr>
+                <tr><td>مدمر كلياً (Destroyed)</td><td>أحمر قاني (#B91C1C)</td><td>3.5 pt</td><td>67,730 منشأة</td></tr>
+                <tr><td>دمار شديد (Severely Damaged)</td><td>برتقالي داكن (#EA580C)</td><td>3.0 pt</td><td>41,430 منشأة</td></tr>
+                <tr><td>دمار متوسط (Moderately Damaged)</td><td>كهرماني دافئ (#F59E0B)</td><td>2.5 pt</td><td>54,780 منشأة</td></tr>
+            </table>
+        </div>
+
+        <div class="step-box">
+            <div class="step-num">الخطوة 3.2</div>
+            <div class="step-title">إلغاء التسميات النصية فوق الخريطة (Zero On-Map Text)</div>
+            <p>لضمان نقاء المرئيات الفضائية وعدم حجب نقاط الدمار:</p>
+            <div class="tool-path">Map Tab -> Labeling Group -> Uncheck 'Label Features' (layer.showLabels = False)</div>
+            <p>يتم إلغاء التسميات النصية على كافة الطبقات داخل إطار الخريطة، والاعتماد حصرياً على مفتاح الخريطة الخارجي في لوحة الإخراج.</p>
+        </div>
+
+        <div class="callout-warn">
+            <strong>تحذير كارتوغرافي:</strong> وجود 163 ألف اسم أو تسمية نصية فوق الخريطة يؤدي إلى تشوه بصري كامل (Label Overlap). الحفاظ على الخريطة خالية من النصوص قاعدة أكاديمية صارمة.
+        </div>
+    </div>
+
+    <!-- CHAPTER 4 -->
+    <div class="chapter">
+        <div class="page-header">
+            <span>دليل العمل التطبيقي في ArcGIS Pro</span>
+            <span>الفصل 4: التحليل المكاني والكثافة الحرارية</span>
+        </div>
+        <span class="chapter-badge">الفصل الرابع</span>
+        <h2 class="chapter-title">التحليل المكاني واشتقاق خريطة الكثافة الحرارية</h2>
+        <p>
+            يهدف تحليل الكثافة النواتية (Kernel Density) إلى إبراز بؤر التركز الجغرافي للدمار وحساب عدد المنشآت المتضررة لكل كيلومتر مربع بشكل مستمر فوق كامل قطاع غزة.
+        </p>
+
+        <div class="step-box">
+            <div class="step-num">الخطوة 4.1</div>
+            <div class="step-title">تنفيذ تحليل الكثافة النواتية (Kernel Density)</div>
+            <div class="tool-path">Geoprocessing -> Spatial Analyst Tools -> Density -> Kernel Density</div>
+            <table class="param-table">
+                <tr><th>المعامل</th><th>القيمة المضبوطة</th><th>التعليل العلمي</th></tr>
+                <tr><td>Input Point Features</td><td>UNOSAT_Damage_Points_FullStrip</td><td>نقاط الدمار الشاملة للقطاع</td></tr>
+                <tr><td>Population Field</td><td>Severity_Weight (أو None للعدد المباشر)</td><td>وزن نوعي حسب شدة التدمير</td></tr>
+                <tr><td>Output Cell Size</td><td>10 meters</td><td>مطابق لدقة مرئيات Sentinel-2</td></tr>
+                <tr><td>Search Radius</td><td>500 meters</td><td>حيز التفاعل العمراني المباشر</td></tr>
+                <tr><td>Area Units</td><td>SQUARE_KILOMETERS</td><td>كثافة منشأة / كم²</td></tr>
+            </table>
+        </div>
+
+        <div class="step-box">
+            <div class="step-num">الخطوة 4.2</div>
+            <div class="step-title">ضبط التدرج اللوني والشفافية (Symbology & Transparency)</div>
+            <p>
+                اختر التدرج اللوني الدافئ المعياري <strong>YlOrRd</strong> (أصفر للمناطق المنخفضة، برتقالي للمتوسطة، وأحمر قاني للبؤر الشديدة). ثم اضبط شفافية الطبقة على <strong>30% - 40%</strong> لتسمح برؤية النسيج العمراني للمرئية الفضائية الموجودة في الخلفية.
+            </p>
+        </div>
+    </div>
+
+    <!-- CHAPTER 5 -->
+    <div class="chapter">
+        <div class="page-header">
+            <span>دليل العمل التطبيقي في ArcGIS Pro</span>
+            <span>الفصل 5: استخراج الإحصائيات الرسمية للمحافظات</span>
+        </div>
+        <span class="chapter-badge">الفصل الخامس</span>
+        <h2 class="chapter-title">التحليل التجميعي للمحافظات الخمس (Summarize Within)</h2>
+        <p>
+            تعد أداة Summarize Within الأداة المعيارية لحساب التداخل المكاني بين مضلعات الحدود الإدارية (المحافظات) ونقاط الظواهر الجغرافية (المنشآت المتضررة).
+        </p>
+
+        <div class="step-box">
+            <div class="step-num">الخطوة 5.1</div>
+            <div class="step-title">تشغيل أداة التلخيص المكاني داخل المضلعات</div>
+            <div class="tool-path">Geoprocessing -> Analysis Tools -> Extract / Overlay -> Summarize Within</div>
+            <table class="param-table">
+                <tr><th>المعامل</th><th>القيمة</th></tr>
+                <tr><td>Input Polygons</td><td>Gaza_Governorates_ADM1 (المحافظات الخمس)</td></tr>
+                <tr><td>Input Summary Features</td><td>UNOSAT_Damage_Points_FullStrip</td></tr>
+                <tr><td>Output Feature Class</td><td>Gaza_FullStrip_Master.gdb\Governorate_Damage_Summary</td></tr>
+                <tr><td>Group Field</td><td>Damage_Class (لحساب تفصيل كل درجة تدمير)</td></tr>
+                <tr><td>Add Group Summary Percentages</td><td>Checked (مفعل لحساب النسب المئوية)</td></tr>
+            </table>
+        </div>
+
+        <div class="step-box">
+            <div class="step-num">الخطوة 5.2</div>
+            <div class="step-title">النتائج الإحصائية المعتمدة للمحافظات الخمس</div>
+            <table class="param-table">
+                <tr><th>المحافظة</th><th>المساحة</th><th>المنشآت المتضررة</th><th>الكثافة (مبنى/كم²)</th><th>نسبة التضرر</th><th>الركام المقدر</th></tr>
+                <tr><td>شمال غزة</td><td>61 كم²</td><td>33,250</td><td>545</td><td>78.2%</td><td>8.63 Mt</td></tr>
+                <tr><td>غزة</td><td>74 كم²</td><td>49,570</td><td>670</td><td>74.5%</td><td>12.87 Mt</td></tr>
+                <tr><td>دير البلح</td><td>58 كم²</td><td>15,650</td><td>270</td><td>51.4%</td><td>4.06 Mt</td></tr>
+                <tr><td>خانيونس</td><td>108 كم²</td><td>40,840</td><td>378</td><td>63.1%</td><td>10.59 Mt</td></tr>
+                <tr><td>رفح</td><td>64 كم²</td><td>24,630</td><td>385</td><td>58.6%</td><td>6.35 Mt</td></tr>
+                <tr style="font-weight: 800; background: #F1F5F9;"><td>الإجمالي العام</td><td>365 كم²</td><td>163,940</td><td>449</td><td>66.4%</td><td>42.50 Mt</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- CHAPTER 6 -->
+    <div class="chapter">
+        <div class="page-header">
+            <span>دليل العمل التطبيقي في ArcGIS Pro</span>
+            <span>الفصل 6: تصميم لوحة الإخراج الطباعي A3</span>
+        </div>
+        <span class="chapter-badge">الفصل السادس</span>
+        <h2 class="chapter-title">تصميم لوحة الإخراج A3 وتنظيف مفتاح الخريطة</h2>
+        <p>
+            الإخراج الكارتوغرافي النهائي هو واجهة البحث العلمي. يوضح هذا الفصل كيفية بناء مخطط A3 أفقي بمواصفات النشر الأكاديمي، وتنظيف مفتاح الخريطة تماماً من أسماء قنوات المرئيات (Band_1/Band_2).
+        </p>
+
+        <div class="step-box">
+            <div class="step-num">الخطوة 6.1</div>
+            <div class="step-title">إنشاء صفحة الإخراج A3 Landscape</div>
+            <div class="tool-path">Insert Tab -> New Layout -> ISO A3 Landscape (420 mm x 297 mm)</div>
+            <p>قم بإنشاء 5 إطارات خرائط متزامنة رأسية (Map Frames) بنفس مقياس الرسم ونفس الامتداد الجغرافي لكامل قطاع غزة.</p>
+        </div>
+
+        <div class="step-box">
+            <div class="step-num">الخطوة 6.2</div>
+            <div class="step-title">تنظيف مفتاح الخريطة (Legend Properties) وإزالة قنوات الصور</div>
+            <p>عند إدراج مفتاح الخريطة (Legend)، يقوم ArcGIS Pro تلقائياً بإضافة قنوات المرئيات الفضائية (Red: Band_1). لإزالتها:</p>
+            <div class="tool-path">Format Legend Pane -> Legend Items -> Select Raster Layers -> Click Delete / Remove Item</div>
+            <p>يجب الإبقاء فقط على طبقات الفيكتور: <strong>حدود المحافظات الخمس</strong>، <strong>نقاط تصنيف UNOSAT</strong>، و<strong>درجات الكثافة الحرارية</strong>، مع كتابة المسميات باللغة العربية الواضحة دون أي شرطات سفلية.</p>
+        </div>
+
+        <div class="step-box">
+            <div class="step-num">الخطوة 6.3</div>
+            <div class="step-title">إدراج مقياس الرسم وسهم الشمال وشبكة الإحداثيات</div>
+            <ul style="margin-right: 20px; line-height: 1.8;">
+                <li><strong>مقياس الرسم:</strong> اختر مقياساً خطياً مترياً بالكيلومتر فقط (Scale Line Metric)، واضبط وحدات القياس على Kilometers (0 — 5 — 10 كم).</li>
+                <li><strong>سهم الشمال:</strong> اختر سهم شمال كلاسيكي أنيق مع حرف (ش) أو (N) في ركن اللوحة الخارجي.</li>
+                <li><strong>التصدير النهائي:</strong> من تبويب Share اختر Export Layout واضبط الصيغة على <strong>PDF / PNG</strong> بدقة <strong>300 DPI</strong> ومساحة ألوان RGB مع تفعيل دمج الخطوط (Embed Fonts).</li>
+            </ul>
+        </div>
+    </div>
+
+</body>
+</html>
