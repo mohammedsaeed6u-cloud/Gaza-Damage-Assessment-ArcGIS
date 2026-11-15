@@ -1,0 +1,86 @@
+{
+  "rimal_shifa": {
+    "name": "حي الرمال ومجمع الشفاء (غزة المركزية)",
+    "center": [
+      31.524,
+      34.444
+    ],
+    "zoom": 17,
+    "count": 3222,
+    "area_m2": 761120,
+    "geojson": "data/neighborhood_rimal_shifa.geojson",
+    "js": "data/neighborhood_rimal_shifa.js"
+  },
+  "rimal_south": {
+    "name": "حي الرمال الجنوبي وتل الهوى وأنصار",
+    "center": [
+      31.508,
+      34.438
+    ],
+    "zoom": 17,
+    "count": 2539,
+    "area_m2": 640716,
+    "geojson": "data/neighborhood_rimal_south.geojson",
+    "js": "data/neighborhood_rimal_south.js"
+  },
+  "old_city": {
+    "name": "البلدة القديمة وميدان فلسطين وعمر المختار",
+    "center": [
+      31.505,
+      34.464
+    ],
+    "zoom": 17,
+    "count": 6382,
+    "area_m2": 1110408,
+    "geojson": "data/neighborhood_old_city.geojson",
+    "js": "data/neighborhood_old_city.js"
+  },
+  "jabalia_camp": {
+    "name": "مخيم جباليا وساحة الشهداء (شمال غزة)",
+    "center": [
+      31.536,
+      34.498
+    ],
+    "zoom": 17,
+    "count": 7113,
+    "area_m2": 1046578,
+    "geojson": "data/neighborhood_jabalia_camp.geojson",
+    "js": "data/neighborhood_jabalia_camp.js"
+  },
+  "khan_younis_center": {
+    "name": "وسط خان يونس والقلعة وميدان الشهداء",
+    "center": [
+      31.344,
+      34.302
+    ],
+    "zoom": 17,
+    "count": 5869,
+    "area_m2": 897968,
+    "geojson": "data/neighborhood_khan_younis_center.geojson",
+    "js": "data/neighborhood_khan_younis_center.js"
+  },
+  "rafah_shaboura": {
+    "name": "وسط رفح ومخيم الشابورة وتل السلطان",
+    "center": [
+      31.284,
+      34.256
+    ],
+    "zoom": 17,
+    "count": 5753,
+    "area_m2": 819142,
+    "geojson": "data/neighborhood_rafah_shaboura.geojson",
+    "js": "data/neighborhood_rafah_shaboura.js"
+  },
+  "deir_balah_center": {
+    "name": "وسط دير البلح ومخيم النصيرات",
+    "center": [
+      31.418,
+      34.354
+    ],
+    "zoom": 17,
+    "count": 3463,
+    "area_m2": 591811,
+    "geojson": "data/neighborhood_deir_balah_center.geojson",
+    "js": "data/neighborhood_deir_balah_center.js"
+  }
+}
