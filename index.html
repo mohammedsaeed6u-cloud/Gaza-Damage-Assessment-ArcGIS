@@ -98,6 +98,21 @@
             background: #06090F;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
             user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+            cursor: ew-resize;
+        }
+        .swipe-range-input {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            opacity: 0;
+            cursor: ew-resize;
+            z-index: 40;
+            -webkit-appearance: none;
+            appearance: none;
             touch-action: none;
         }
         .swipe-layer {
@@ -125,6 +140,7 @@
             will-change: clip-path;
         }
         .swipe-divider-line {
+            pointer-events: none;
             position: absolute;
             top: 0;
             bottom: 0;
@@ -137,6 +153,9 @@
             box-shadow: 0 0 20px rgba(220, 38, 38, 0.9);
         }
         .swipe-handle-knob {
+            pointer-events: none;
+            user-select: none;
+            -webkit-user-select: none;
             position: absolute;
             top: 50%;
             left: 50%;
@@ -344,6 +363,8 @@
 
             <!-- The Cinematic Swipe Stage (Clip-Path Polygon for 1:1 Scale) -->
             <div class="swipe-stage" id="swipeStage" style="--split-pos: 50%;">
+                <!-- Invisible full-stage interactive range input for 100% infallible dragging -->
+                <input type="range" min="0" max="100" value="50" step="0.1" id="swipeRangeInput" class="swipe-range-input" aria-label="شريط مقارنة الأقمار الصناعية">
                 <!-- Under Image: After Destruction (Nov 2026) -->
                 <div class="swipe-layer" id="layerAfter">
                     <img src="data/Gaza_After_Nov2026_opt.webp" loading="eager" decoding="async" alt="After Destruction (Nov 2026)" id="imgAfter">
@@ -446,11 +467,11 @@
                     <span class="absolute right-3 top-2.5 text-slate-400">🔍</span>
                 </div>
 
-                <div class="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-                    <span class="text-slate-400 font-bold ml-1">نوع الخريطة:</span>
-                    <button onclick="setBasemap('satellite')" id="bm-sat" class="px-2.5 py-1 rounded-lg bg-red-700 text-white font-bold transition">🛰️ قمر صناعي</button>
-                    <button onclick="setBasemap('dark')" id="bm-dark" class="px-2.5 py-1 rounded-lg bg-slate-900 text-slate-300 border border-slate-700 hover:bg-slate-800 transition">🌙 خريطة داكنة</button>
-                    <button onclick="setBasemap('light')" id="bm-light" class="px-2.5 py-1 rounded-lg bg-slate-900 text-slate-300 border border-slate-700 hover:bg-slate-800 transition">🏙️ خريطة هادئة</button>
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-red-950/80 text-red-300 border border-red-800/60 font-bold text-xs shadow-sm">
+                        <span>🛰️</span>
+                        <span>مرئيات الأقمار الصناعية عالية الدقة (Esri World Imagery)</span>
+                    </span>
                 </div>
             </div>
 
@@ -850,28 +871,56 @@
             updateChartThemes(isDark);
         });
 
-        // 3. CURTAIN SWIPE INTERACTION (1:1 PIXEL ALIGNMENT)
+        // 3. CURTAIN SWIPE INTERACTION (1:1 PIXEL ALIGNMENT) - BULLETPROOF MULTI-ENGINE
         const stage = document.getElementById('swipeStage');
         const divider = document.getElementById('swipeDivider');
         const layerBefore = document.getElementById('layerBefore');
         const layerAfter = document.getElementById('layerAfter');
+        const rangeInput = document.getElementById('swipeRangeInput');
         let isDragging = false;
         let swipeZoomLevel = 1.0;
         let swipePanX = 0;
         let swipePanY = 0;
+
+        function updateSwipe(pct) {
+            pct = Math.max(0, Math.min(100, pct));
+            stage.style.setProperty('--split-pos', pct + '%');
+            if (divider) {
+                divider.style.left = pct + '%';
+            }
+            if (layerBefore) {
+                const clipVal = `polygon(0% 0%, ${pct}% 0%, ${pct}% 100%, 0% 100%)`;
+                layerBefore.style.clipPath = clipVal;
+                layerBefore.style.webkitClipPath = clipVal;
+            }
+            if (rangeInput && Math.abs(rangeInput.value - pct) > 0.1) {
+                rangeInput.value = pct;
+            }
+        }
 
         function setSplitPosition(clientX) {
             const rect = stage.getBoundingClientRect();
             let x = clientX - rect.left;
             x = Math.max(0, Math.min(x, rect.width));
             const pct = (x / rect.width) * 100;
-            stage.style.setProperty('--split-pos', pct + '%');
+            updateSwipe(pct);
         }
 
         function setSliderPreset(pct) {
-            stage.style.setProperty('--split-pos', pct + '%');
+            updateSwipe(pct);
         }
 
+        // Native range input for silky smooth 60 FPS dragging
+        if (rangeInput) {
+            rangeInput.addEventListener('input', (e) => {
+                updateSwipe(parseFloat(e.target.value));
+            });
+            rangeInput.addEventListener('change', (e) => {
+                updateSwipe(parseFloat(e.target.value));
+            });
+        }
+
+        // Pointer event engine with capture and drag-cancellation immunity
         stage.addEventListener('pointerdown', (e) => {
             isDragging = true;
             setSplitPosition(e.clientX);
@@ -881,6 +930,17 @@
             setSplitPosition(e.clientX);
         });
         window.addEventListener('pointerup', () => { isDragging = false; });
+        window.addEventListener('pointercancel', () => { isDragging = false; });
+
+        // Touch event direct support
+        stage.addEventListener('touchmove', (e) => {
+            if (e.touches && e.touches[0]) {
+                setSplitPosition(e.touches[0].clientX);
+            }
+        }, { passive: true });
+
+        // Initialize at 50%
+        updateSwipe(50);
 
         // Swipe Zoom Controls
         function zoomSwipe(factor) {
@@ -969,55 +1029,32 @@
             }
         }
 
-        // 5. LEAFLET INTERACTIVE MAP IMPLEMENTATION
+        // 5. LEAFLET INTERACTIVE MAP IMPLEMENTATION (HIGH-PERFORMANCE CANVAS + SATELLITE BASEMAP)
         const map = L.map('leafletMap', {
             preferCanvas: true,
             zoomControl: true
         }).setView([31.42, 34.38], 11);
 
-        const basemaps = {
-            satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                maxZoom: 18,
-                attribution: 'Esri World Imagery'
-            }),
-            dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{y}/{x}{r}.png', {
-                maxZoom: 19,
-                subdomains: 'abcd',
-                attribution: 'CartoDB Dark Matter'
-            }),
-            light: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{y}/{x}{r}.png', {
-                maxZoom: 19,
-                subdomains: 'abcd',
-                attribution: 'CartoDB Positron'
-            })
-        };
-        basemaps.satellite.addTo(map);
+        // Exclusive High-Resolution Esri Satellite Basemap
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 18,
+            attribution: 'Esri World Imagery'
+        }).addTo(map);
 
-        function setBasemap(type) {
-            Object.values(basemaps).forEach(b => map.removeLayer(b));
-            if (basemaps[type]) basemaps[type].addTo(map);
-            ['sat', 'dark', 'light'].forEach(t => {
-                const btn = document.getElementById('bm-' + t);
-                if (t === (type === 'satellite' ? 'sat' : type)) {
-                    btn.className = 'px-2.5 py-1 rounded-lg bg-red-700 text-white font-bold transition';
-                } else {
-                    btn.className = 'px-2.5 py-1 rounded-lg bg-slate-900 text-slate-300 border border-slate-700 hover:bg-slate-800 transition';
-                }
-            });
-        }
-
-        // Vector Markers for UNOSAT Points
+        // Vector Markers Layer Group
         let damageLayerGroup = L.layerGroup().addTo(map);
         let currentFilter = 'all';
 
         function getMarkerColor(dmgClass) {
-            if (dmgClass.includes('مدمر كلياً')) return '#DC2626';
+            if (typeof dmgClass === 'number') {
+                if (dmgClass === 1) return '#DC2626';
+                if (dmgClass === 2) return '#EA580C';
+                return '#F59E0B';
+            }
+            if (dmgClass.includes('مدمر')) return '#DC2626';
             if (dmgClass.includes('شديد') || dmgClass.includes('جسيم')) return '#EA580C';
             return '#F59E0B';
         }
-
-        // High-Performance GPU Canvas Renderer
-        const canvasRenderer = L.canvas({ padding: 0.5, tolerance: 8 });
 
         function renderPoints() {
             damageLayerGroup.clearLayers();
@@ -1028,13 +1065,19 @@
                 const f = feats[i];
                 const props = f.properties || {};
                 const dmg = props.Damage_Class || 'دمار متوسط';
-                if (currentFilter !== 'all' && !dmg.includes(currentFilter)) return;
+                
+                // Bulletproof filter matching across all category aliases
+                if (currentFilter !== 'all') {
+                    if ((currentFilter === 'مدمر كلياً' || currentFilter === 'destroyed') && !dmg.includes('مدمر')) continue;
+                    if ((currentFilter === 'دمار شديد' || currentFilter === 'severe' || currentFilter === 'أضرار جسيمة') && !(dmg.includes('شديد') || dmg.includes('جسيم'))) continue;
+                    if ((currentFilter === 'دمار متوسط' || currentFilter === 'moderate' || currentFilter === 'أضرار متوسطة') && !(dmg.includes('متوسط') || dmg.includes('محتمل'))) continue;
+                }
 
                 const coords = f.geometry ? f.geometry.coordinates : null;
                 if (!coords) continue;
 
+                // Leaflet with preferCanvas: true automatically renders on HTML5 Canvas at 60 FPS
                 const marker = L.circleMarker([coords[1], coords[0]], {
-                    renderer: canvasRenderer,
                     radius: 3.5,
                     fillColor: getMarkerColor(dmg),
                     color: '#FFFFFF',
@@ -1043,7 +1086,7 @@
                     fillOpacity: 0.85
                 });
 
-                // Lazy popup on click (prevents memory spikes and lag)
+                // Lazy popup on click
                 marker.on('click', () => {
                     marker.bindPopup(`
                         <div class="text-right p-2 space-y-1.5" dir="rtl">
@@ -1091,12 +1134,13 @@
             currentFilter = cat;
             ['all', 'destroyed', 'severe', 'moderate'].forEach(k => {
                 const btn = document.getElementById('btn-' + k);
+                if (!btn) return;
                 const isMatch = (k === 'all' && cat === 'all') ||
-                                (k === 'destroyed' && cat === 'مدمر كلياً') ||
-                                (k === 'severe' && cat === 'دمار شديد') ||
-                                (k === 'moderate' && cat === 'دمار متوسط');
+                                (k === 'destroyed' && (cat === 'مدمر كلياً' || cat === 'destroyed')) ||
+                                (k === 'severe' && (cat === 'دمار شديد' || cat === 'severe' || cat === 'أضرار جسيمة')) ||
+                                (k === 'moderate' && (cat === 'دمار متوسط' || cat === 'moderate' || cat === 'أضرار متوسطة'));
                 if (isMatch) {
-                    btn.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-950 transition shadow-sm';
+                    btn.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-950 transition shadow-sm ring-2 ring-white/20';
                 } else {
                     btn.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 border border-slate-700 hover:bg-slate-800 transition';
                 }
