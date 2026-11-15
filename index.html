@@ -343,21 +343,35 @@
                     </p>
                 </div>
 
-                <!-- Presets & Zoom Toolbar -->
-                <div class="flex flex-wrap items-center gap-2">
-                    <button onclick="setSliderPreset(0)" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 hover:bg-emerald-950 hover:text-emerald-300 border border-slate-700 transition">
-                        🟢 خط الأساس المرجعي (أكتوبر 2023)
-                    </button>
-                    <button onclick="setSliderPreset(50)" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-red-700 text-white hover:bg-red-600 transition shadow-sm">
-                        ⚖️ 50% مقارنة متزامنة
-                    </button>
-                    <button onclick="setSliderPreset(100)" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 hover:bg-red-950 hover:text-red-300 border border-slate-700 transition">
-                        🔴 الوضع الراهن المعتمد (نوفمبر 2026)
-                    </button>
-                    <div class="h-6 w-px bg-slate-700 mx-1 hidden sm:block"></div>
-                    <button onclick="zoomSwipe(1.2)" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 border border-slate-700 hover:bg-slate-800 transition" title="تكبير المرئية">🔍 +</button>
-                    <button onclick="zoomSwipe(0.8)" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 border border-slate-700 hover:bg-slate-800 transition" title="تصغير المرئية">🔍 -</button>
-                    <button onclick="resetSwipeZoom()" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 border border-slate-700 hover:bg-slate-800 transition" title="إعادة ضبط المقياس">100%</button>
+                <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <!-- Mode Switcher: Satellite vs Building Footprints -->
+                    <div class="flex items-center gap-1.5 p-1 bg-slate-900/90 rounded-2xl border border-slate-700">
+                        <button onclick="switchSwipeMode('satellite')" id="btn-mode-sat" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-red-700 text-white shadow-sm">
+                            <span>🛰️</span>
+                            <span>مرئيات الأقمار الصناعية</span>
+                        </button>
+                        <button onclick="switchSwipeMode('buildings')" id="btn-mode-bld" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 text-slate-300 hover:text-white hover:bg-slate-800">
+                            <span>🏢</span>
+                            <span>رسم وبصمات المباني (قبل وبعد)</span>
+                        </button>
+                    </div>
+
+                    <!-- Presets & Zoom Toolbar -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="setSliderPreset(0)" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 hover:bg-emerald-950 hover:text-emerald-300 border border-slate-700 transition">
+                            🟢 قبل الحرب (أكتوبر 2023)
+                        </button>
+                        <button onclick="setSliderPreset(50)" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-red-700 text-white hover:bg-red-600 transition shadow-sm">
+                            ⚖️ 50% مقارنة متزامنة
+                        </button>
+                        <button onclick="setSliderPreset(100)" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 hover:bg-red-950 hover:text-red-300 border border-slate-700 transition">
+                            🔴 بعد الحرب (نوفمبر 2026)
+                        </button>
+                        <div class="h-6 w-px bg-slate-700 mx-1 hidden sm:block"></div>
+                        <button onclick="zoomSwipe(1.2)" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 border border-slate-700 hover:bg-slate-800 transition" title="تكبير المرئية">🔍 +</button>
+                        <button onclick="zoomSwipe(0.8)" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 border border-slate-700 hover:bg-slate-800 transition" title="تصغير المرئية">🔍 -</button>
+                        <button onclick="resetSwipeZoom()" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 border border-slate-700 hover:bg-slate-800 transition" title="إعادة ضبط المقياس">100%</button>
+                    </div>
                 </div>
             </div>
 
@@ -378,11 +392,11 @@
                 <!-- Floating Badges -->
                 <div class="absolute top-5 right-5 z-20 bg-slate-950/90 backdrop-blur-md px-4 py-2 rounded-xl text-white text-xs font-bold border border-slate-700 shadow-md flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                    <span>خط الأساس المرجعي: أكتوبر 2023 (قبل بدء النزاع)</span>
+                    <span id="badgeBeforeLabel">خط الأساس المرجعي: أكتوبر 2023 (قبل بدء النزاع)</span>
                 </div>
                 <div class="absolute top-5 left-5 z-20 bg-red-950/90 backdrop-blur-md px-4 py-2 rounded-xl text-white text-xs font-bold border border-red-700/80 shadow-md flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
-                    <span>الوضع الراهن المعتمد: نوفمبر 2026 (تدمير 66.4%)</span>
+                    <span id="badgeAfterLabel">الوضع الراهن المعتمد: نوفمبر 2026 (تدمير 66.4%)</span>
                 </div>
 
                 <!-- Draggable Divider Line & Knob -->
@@ -390,6 +404,36 @@
                     <div class="swipe-handle-knob" title="اسحب للمقارنة">
                         ◀ ▶
                     </div>
+                </div>
+            </div>
+
+            <!-- Building Footprints Damage Legend (Visible when buildings mode active) -->
+            <div id="buildingLegendBar" class="hidden p-4 rounded-2xl bg-slate-900/90 border border-slate-700 text-xs flex flex-wrap items-center justify-between gap-3 shadow-lg">
+                <span class="font-bold text-white flex items-center gap-1.5">
+                    <span>🏢</span>
+                    <span>دليل تصنيف بصمات المباني (326,448 مبنى):</span>
+                </span>
+                <div class="flex flex-wrap items-center gap-3 font-semibold">
+                    <span class="inline-flex items-center gap-1.5 text-red-400">
+                        <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                        <span>مدمر كلياً ومسواة بالأرض (60,373 مبنى - 35.3%)</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 text-orange-400">
+                        <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+                        <span>أضرار بالغة وشديدة (20,065 مبنى - 11.7%)</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 text-amber-400">
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                        <span>أضرار متوسطة (90,397 مبنى - 52.9%)</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 text-emerald-400">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                        <span>مبانٍ صامدة / غير متضررة (150,756 مبنى - 30.6%)</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 text-sky-400">
+                        <span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span>
+                        <span>بصمات المباني السليمة (قبل الحرب: 326,448)</span>
+                    </span>
                 </div>
             </div>
 
@@ -633,7 +677,7 @@
             </div>
 
             <!-- Plates Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- Plate 1B -->
                 <div class="group relative rounded-2xl overflow-hidden border border-slate-800 bg-slate-900/60 hover:border-red-500/80 transition-all duration-300 shadow-xl">
                     <div class="aspect-[1.414] overflow-hidden bg-slate-950 cursor-pointer" onclick="openLightbox('downloads/Plate_01B_Satellite_Before_After_SideBySide_A3.png', 'اللوحة 01B: رصد التحول المكاني والتدمير الشامل بالأقمار الصناعية (مقارنة قبل وبعد الحرب)')">
@@ -694,6 +738,28 @@
                                 🔍 تكبير ومعاينة
                             </button>
                             <a href="downloads/Plate_03_Damage_Kernel_Density_Unified_FullStrip_A3.pdf" download class="px-3 py-1.5 rounded-lg bg-red-700 hover:bg-red-600 text-xs font-bold text-white transition">
+                                📥 PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plate 04: Building Footprints Before & After -->
+                <div class="group relative rounded-2xl overflow-hidden border border-slate-800 bg-slate-900/60 hover:border-sky-500/80 transition-all duration-300 shadow-xl">
+                    <div class="aspect-[1.414] overflow-hidden bg-slate-950 cursor-pointer" onclick="openLightbox('downloads/Plate_04_Building_Footprints_Before_After_Comparison_A3.png', 'اللوحة 04: التقييم الجيومكاني المقارن لرسم وبصمات المباني في قطاع غزة (قبل وبعد الحرب)')">
+                        <img src="downloads/Plate_04_thumb.webp" loading="lazy" decoding="async" alt="Plate 04" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    </div>
+                    <div class="p-4 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-sky-400">اللوحة الرابعة (04)</span>
+                            <span class="text-[11px] font-bold text-slate-400 font-num">300 DPI • A3 (9.0 MB)</span>
+                        </div>
+                        <h4 class="text-sm font-bold text-white leading-snug">مقارنة رسم وبصمات المباني وتدمير النسيج العمراني (حصر 326,448 مبنى قبل مقابل 170,835 متضرر)</h4>
+                        <div class="flex items-center gap-2 pt-2">
+                            <button onclick="openLightbox('downloads/Plate_04_Building_Footprints_Before_After_Comparison_A3.png', 'اللوحة 04: التقييم الجيومكاني المقارن لرسم وبصمات المباني في قطاع غزة (قبل وبعد الحرب)')" class="flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 transition">
+                                🔍 تكبير ومعاينة
+                            </button>
+                            <a href="downloads/Plate_04_Building_Footprints_Before_After_Comparison_A3.pdf" download class="px-3 py-1.5 rounded-lg bg-sky-700 hover:bg-sky-600 text-xs font-bold text-white transition">
                                 📥 PDF
                             </a>
                         </div>
@@ -802,6 +868,21 @@
                         <p class="text-xs text-slate-400 mt-1">خريطة بؤر الدمار الحرارية لكامل القطاع الموحد بمقياس 1:180,000 (300 DPI)</p>
                     </div>
                     <a href="downloads/Plate_03_Damage_Kernel_Density_Unified_FullStrip_A3.pdf" download class="inline-flex items-center justify-center w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition border border-slate-700">
+                        تحميل اللوحة (PDF 300 DPI)
+                    </a>
+                </div>
+
+                <!-- DL 7: Plate 04 Building Footprints Comparison -->
+                <div class="p-5 rounded-2xl bg-slate-900/70 border border-slate-800 hover:border-sky-500/60 transition space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-2xl">🏢</span>
+                        <span class="text-[11px] font-bold text-slate-400 font-num">1.5 MB</span>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-white">اللوحة 04: رسم وبصمات المباني قبل وبعد (A3)</h4>
+                        <p class="text-xs text-slate-400 mt-1">مقارنة كارتوغرافية مزدوجة لحصر 326,448 مبنى وتصنيف الأضرار (300 DPI)</p>
+                    </div>
+                    <a href="downloads/Plate_04_Building_Footprints_Before_After_Comparison_A3.pdf" download class="inline-flex items-center justify-center w-full py-2 rounded-xl bg-sky-700 hover:bg-sky-600 text-white text-xs font-bold transition">
                         تحميل اللوحة (PDF 300 DPI)
                     </a>
                 </div>
@@ -961,6 +1042,37 @@
             const t = `scale(${swipeZoomLevel}) translate(${swipePanX}%, ${swipePanY}%)`;
             layerBefore.style.transform = t;
             layerAfter.style.transform = t;
+        }
+
+        // 3.1. SWIPE MODE SWITCHER (Satellite vs Building Footprints)
+        let currentSwipeMode = 'satellite';
+        function switchSwipeMode(mode) {
+            currentSwipeMode = mode;
+            const btnSat = document.getElementById('btn-mode-sat');
+            const btnBld = document.getElementById('btn-mode-bld');
+            const imgBefore = document.getElementById('imgBefore');
+            const imgAfter = document.getElementById('imgAfter');
+            const badgeBefore = document.getElementById('badgeBeforeLabel');
+            const badgeAfter = document.getElementById('badgeAfterLabel');
+            const bldLegend = document.getElementById('buildingLegendBar');
+
+            if (mode === 'buildings') {
+                btnBld.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-sky-600 text-white shadow-sm";
+                btnSat.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 text-slate-300 hover:text-white hover:bg-slate-800";
+                imgBefore.src = "data/Gaza_Buildings_Before_Oct2023.webp";
+                imgAfter.src = "data/Gaza_Buildings_After_Nov2026.webp";
+                if (badgeBefore) badgeBefore.innerText = "رسم المباني قبل الحرب: أكتوبر 2023 (326,448 منشأة قائمة)";
+                if (badgeAfter) badgeAfter.innerText = "تصنيف دمار المباني: نوفمبر 2026 (170,835 متضرر)";
+                if (bldLegend) bldLegend.classList.remove('hidden');
+            } else {
+                btnSat.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-red-700 text-white shadow-sm";
+                btnBld.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 text-slate-300 hover:text-white hover:bg-slate-800";
+                imgBefore.src = "data/Gaza_Before_Oct2023_opt.webp";
+                imgAfter.src = "data/Gaza_After_Nov2026_opt.webp";
+                if (badgeBefore) badgeBefore.innerText = "خط الأساس المرجعي: أكتوبر 2023 (قبل بدء النزاع)";
+                if (badgeAfter) badgeAfter.innerText = "الوضع الراهن المعتمد: نوفمبر 2026 (تدمير 66.4%)";
+                if (bldLegend) bldLegend.classList.add('hidden');
+            }
         }
 
         // 4. HOTSPOT FOCUS TOUR
