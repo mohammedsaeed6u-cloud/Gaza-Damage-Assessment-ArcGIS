@@ -1073,6 +1073,9 @@
                 if (badgeAfter) badgeAfter.innerText = "الوضع الراهن المعتمد: نوفمبر 2026 (تدمير 66.4%)";
                 if (bldLegend) bldLegend.classList.add('hidden');
             }
+            if (typeof updateSwipe === 'function') {
+                updateSwipe(parseFloat(rangeInput ? rangeInput.value : 50));
+            }
         }
 
         // 4. HOTSPOT FOCUS TOUR
