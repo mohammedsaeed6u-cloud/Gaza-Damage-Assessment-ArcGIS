@@ -1,0 +1,57 @@
+{
+  "gaza_rimal": {
+    "name": "حي الرمال وتل الهوى ومدينة غزة",
+    "file": "data/buildings_prewar_gaza_rimal.geojson",
+    "count": 29713,
+    "center": [
+      31.52,
+      34.445
+    ],
+    "zoom": 15,
+    "size_mb": 9.19
+  },
+  "north_jabalia": {
+    "name": "مخيم جباليا وبيت لاهيا (شمال غزة)",
+    "file": "data/buildings_prewar_north_jabalia.geojson",
+    "count": 36227,
+    "center": [
+      31.538,
+      34.498
+    ],
+    "zoom": 15,
+    "size_mb": 11.56
+  },
+  "khan_younis": {
+    "name": "وسط خان يونس والكتيبة والمخيم",
+    "file": "data/buildings_prewar_khan_younis.geojson",
+    "count": 32361,
+    "center": [
+      31.346,
+      34.305
+    ],
+    "zoom": 15,
+    "size_mb": 10.35
+  },
+  "rafah": {
+    "name": "وسط رفح والشابورة وتل السلطان",
+    "file": "data/buildings_prewar_rafah.geojson",
+    "count": 21560,
+    "center": [
+      31.288,
+      34.252
+    ],
+    "zoom": 15,
+    "size_mb": 6.59
+  },
+  "deir_balah": {
+    "name": "دير البلح ومخيم النصيرات",
+    "file": "data/buildings_prewar_deir_balah.geojson",
+    "count": 20803,
+    "center": [
+      31.418,
+      34.355
+    ],
+    "zoom": 15,
+    "size_mb": 6.78
+  }
+}
