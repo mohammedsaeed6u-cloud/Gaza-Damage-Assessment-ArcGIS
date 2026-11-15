@@ -34,11 +34,7 @@ def utm36n_to_latlon(e, n):
     lat = fp - (n1 * math.tan(fp) / r1) * (d**2 / 2 - (5 + 3*t1 + 10*c1 - 4*c1**2 - 9*e1sq)*d**4 / 24)
     lon = lon0 + (d - (1 + 2*t1 + c1)*d**3 / 6) / math.cos(fp)
     
-    # Apply calibrated geodetic alignment shift
-    calib_lon = math.degrees(lon) - 0.000082
-    calib_lat = math.degrees(lat) + 0.000010
-    
-    return round(calib_lat, 6), round(calib_lon, 6)
+    return round(math.degrees(lat), 6), round(math.degrees(lon), 6)
 
 # Neighborhood Bounding Boxes [min_lat, min_lon, max_lat, max_lon]
 neighborhoods_config = {

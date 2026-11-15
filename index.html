@@ -1727,7 +1727,7 @@
             const container = bldTileLayer.getContainer();
             
             if (mode === 'blueprint') {
-                if (container) container.style.filter = 'brightness(0.5) contrast(1.5) saturate(0.15)';
+                if (container) container.style.filter = 'brightness(0.7) contrast(1.15) saturate(0.4)';
                 if (btnBlue) {
                     btnBlue.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-sky-600 text-white shadow-sm flex items-center gap-1.5";
                 }
@@ -1937,7 +1937,7 @@
             // If local file protocol, use dynamic script loader
             if (location.protocol === 'file:') {
                 const s = document.createElement('script');
-                s.src = nh.jsFile;
+                s.src = nh.jsFile + '?v=20261115_snapped';
                 s.onerror = () => {
                     fetchNeighborhoodGeoJson(key, nh.file);
                 };
@@ -1948,7 +1948,7 @@
         }
 
         function fetchNeighborhoodGeoJson(key, url) {
-            fetch(url)
+            fetch(url + '?v=20261115_snapped')
                 .then(r => {
                     if (!r.ok) throw new Error('Fetch failed: ' + r.status);
                     return r.json();
