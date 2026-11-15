@@ -136,7 +136,7 @@
         }
         /* Top layer clipped with CSS polygon for 100% exact registration */
         .swipe-layer-clip {
-            clip-path: polygon(0% 0%, var(--split-pos, 50%) 0%, var(--split-pos, 50%) 100%, 0% 100%);
+            clip-path: polygon(var(--split-pos, 50%) 0%, 100% 0%, 100% 100%, var(--split-pos, 50%) 100%);
             will-change: clip-path;
         }
         .swipe-divider-line {
@@ -345,14 +345,14 @@
 
                 <!-- Presets & Zoom Toolbar -->
                 <div class="flex flex-wrap items-center gap-2">
-                    <button onclick="setSliderPreset(100)" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 hover:bg-emerald-950 hover:text-emerald-300 border border-slate-700 transition">
-                        🟢 قبل النزاع (أكتوبر 2023)
+                    <button onclick="setSliderPreset(0)" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 hover:bg-emerald-950 hover:text-emerald-300 border border-slate-700 transition">
+                        🟢 خط الأساس المرجعي (أكتوبر 2023)
                     </button>
                     <button onclick="setSliderPreset(50)" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-red-700 text-white hover:bg-red-600 transition shadow-sm">
                         ⚖️ 50% مقارنة متزامنة
                     </button>
-                    <button onclick="setSliderPreset(0)" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 hover:bg-red-950 hover:text-red-300 border border-slate-700 transition">
-                        🔴 الوضع الراهن (نوفمبر 2026)
+                    <button onclick="setSliderPreset(100)" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 hover:bg-red-950 hover:text-red-300 border border-slate-700 transition">
+                        🔴 الوضع الراهن المعتمد (نوفمبر 2026)
                     </button>
                     <div class="h-6 w-px bg-slate-700 mx-1 hidden sm:block"></div>
                     <button onclick="zoomSwipe(1.2)" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 border border-slate-700 hover:bg-slate-800 transition" title="تكبير المرئية">🔍 +</button>
@@ -378,11 +378,11 @@
                 <!-- Floating Badges -->
                 <div class="absolute top-5 right-5 z-20 bg-slate-950/90 backdrop-blur-md px-4 py-2 rounded-xl text-white text-xs font-bold border border-slate-700 shadow-md flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                    <span>الوضع المرجعي: 2 أكتوبر 2023 (خط الأساس)</span>
+                    <span>خط الأساس المرجعي: أكتوبر 2023 (قبل بدء النزاع)</span>
                 </div>
                 <div class="absolute top-5 left-5 z-20 bg-red-950/90 backdrop-blur-md px-4 py-2 rounded-xl text-white text-xs font-bold border border-red-700/80 shadow-md flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
-                    <span>الوضع الراهن: 10 نوفمبر 2026 (تدمير 66.4%)</span>
+                    <span>الوضع الراهن المعتمد: نوفمبر 2026 (تدمير 66.4%)</span>
                 </div>
 
                 <!-- Draggable Divider Line & Knob -->
@@ -889,7 +889,10 @@
                 divider.style.left = pct + '%';
             }
             if (layerBefore) {
-                const clipVal = `polygon(0% 0%, ${pct}% 0%, ${pct}% 100%, 0% 100%)`;
+                // Clips layerBefore to the RIGHT half (from pct% to 100%)
+                // So LEFT half (0% to pct%) shows layerAfter (Nov 2026)
+                // and RIGHT half (pct% to 100%) shows layerBefore (Oct 2023)
+                const clipVal = `polygon(${pct}% 0%, 100% 0%, 100% 100%, ${pct}% 100%)`;
                 layerBefore.style.clipPath = clipVal;
                 layerBefore.style.webkitClipPath = clipVal;
             }
