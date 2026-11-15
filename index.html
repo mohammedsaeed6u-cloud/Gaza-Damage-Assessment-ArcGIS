@@ -375,17 +375,12 @@
                 </div>
 
                 <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-                    <!-- Mode Switcher: Satellite vs Building Footprints -->
-                    <div class="flex items-center gap-1.5 p-1 bg-slate-900/90 rounded-2xl border border-slate-700">
-                        <button onclick="switchSwipeMode('satellite')" id="btn-mode-sat" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-red-700 text-white shadow-sm">
-                            <span>🛰️</span>
-                            <span>مرئيات الأقمار الصناعية</span>
-                        </button>
-                        <button onclick="switchSwipeMode('buildings')" id="btn-mode-bld" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 text-slate-300 hover:text-white hover:bg-slate-800">
-                            <span>🏢</span>
-                            <span>رسم وبصمات المباني (قبل وبعد)</span>
-                        </button>
-                    </div>
+                    <!-- Direct Link to Cadastral Vector Buildings Explorer -->
+                    <a href="#buildings-baseline-section" class="px-4 py-2 rounded-2xl text-xs font-bold transition flex items-center gap-2 bg-sky-950/80 hover:bg-sky-900 text-sky-300 border border-sky-600/50 shadow-md">
+                        <span>🏢</span>
+                        <span>مستكشف مضلعات المباني (قبل الحرب)</span>
+                        <span class="text-sky-400">↓</span>
+                    </a>
 
                     <!-- Presets & Zoom Toolbar -->
                     <div class="flex flex-wrap items-center gap-2">
@@ -578,10 +573,10 @@
                 </div>
             </div>
 
-            <!-- Toolbar: Search + Quick Tools -->
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <!-- Toolbar: Search + Quick Tools + Basemap Mode + Opacity -->
+            <div class="flex flex-col lg:flex-row items-center justify-between gap-3 text-xs">
                 <!-- Search by Building ID -->
-                <div class="flex items-center gap-2 w-full sm:w-80">
+                <div class="flex items-center gap-2 w-full lg:w-80">
                     <div class="relative flex-1">
                         <input type="text" id="bldSearchInput" placeholder="بحث برقم معرف المبنى (مثال: 194)..." class="w-full pl-3 pr-8 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-hidden focus:border-sky-500 text-xs">
                         <span class="absolute right-2.5 top-2.5 text-slate-400 text-xs">🔍</span>
@@ -591,11 +586,26 @@
                     </button>
                 </div>
 
-                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                    <span class="text-[11px] text-slate-400 font-semibold">شفافية المضلعات:</span>
-                    <button onclick="adjustBldOpacity(0.12)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-white text-xs font-bold">خفيفة (12%)</button>
-                    <button onclick="adjustBldOpacity(0.25)" class="px-2.5 py-1 rounded-lg bg-sky-950 border border-sky-700 text-sky-300 hover:text-white text-xs font-bold">مثالية (25%)</button>
-                    <button onclick="adjustBldOpacity(0.50)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-white text-xs font-bold">بارزة (50%)</button>
+                <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-end">
+                    <!-- Basemap Switcher (Satellite vs Dark Blueprint) -->
+                    <div class="flex items-center gap-1 p-1 bg-slate-900 rounded-xl border border-slate-700">
+                        <button onclick="setBldBasemap('satellite')" id="btn-bld-base-sat" class="px-3 py-1 rounded-lg text-xs font-bold transition bg-sky-600 text-white shadow-sm flex items-center gap-1.5">
+                            <span>🛰️</span>
+                            <span>مرئية فضائية</span>
+                        </button>
+                        <button onclick="setBldBasemap('blueprint')" id="btn-bld-base-blue" class="px-3 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white flex items-center gap-1.5">
+                            <span>📐</span>
+                            <span>مخطط داكن (Blueprint)</span>
+                        </button>
+                    </div>
+
+                    <!-- Opacity Controls (Thin Wireframe Default) -->
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[11px] text-slate-400 font-semibold">تعبئة المضلع:</span>
+                        <button onclick="adjustBldOpacity(0.01)" id="btn-op-0" class="bld-op-btn px-2.5 py-1 rounded-lg bg-sky-950 border border-sky-500 text-sky-300 font-bold text-xs">شفاف (حدود فقط)</button>
+                        <button onclick="adjustBldOpacity(0.12)" id="btn-op-12" class="bld-op-btn px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-white text-xs font-bold">خفيف (12%)</button>
+                        <button onclick="adjustBldOpacity(0.28)" id="btn-op-28" class="bld-op-btn px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-white text-xs font-bold">بارز (28%)</button>
+                    </div>
                 </div>
             </div>
 
@@ -1693,7 +1703,8 @@
         const bldIndex = new Map();
         let selectedBldData = null;
         let selectedBldHighlight = null;
-        let currentFillOpacity = 0.22;
+        let currentFillOpacity = 0.01;
+        let currentBasemapMode = 'satellite';
 
         // Leaflet Map Initialization with crisp 1:1,000 architectural scale (Zoom 17)
         const buildingsMap = L.map('buildingsMap', {
@@ -1703,10 +1714,39 @@
         }).setView([31.524, 34.444], 17);
 
         // Satellite Basemap
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        const bldTileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             maxZoom: 20,
             attribution: 'Esri World Imagery'
         }).addTo(buildingsMap);
+
+        function setBldBasemap(mode) {
+            currentBasemapMode = mode;
+            const btnSat = document.getElementById('btn-bld-base-sat');
+            const btnBlue = document.getElementById('btn-bld-base-blue');
+            const container = bldTileLayer.getContainer();
+            
+            if (mode === 'blueprint') {
+                if (container) container.style.filter = 'brightness(0.5) contrast(1.5) saturate(0.15)';
+                if (btnBlue) {
+                    btnBlue.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-sky-600 text-white shadow-sm flex items-center gap-1.5";
+                }
+                if (btnSat) {
+                    btnSat.className = "px-3 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white flex items-center gap-1.5";
+                }
+            } else {
+                if (container) container.style.filter = 'none';
+                if (btnSat) {
+                    btnSat.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-sky-600 text-white shadow-sm flex items-center gap-1.5";
+                }
+                if (btnBlue) {
+                    btnBlue.className = "px-3 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white flex items-center gap-1.5";
+                }
+            }
+        }
+
+        buildingsMap.on('click', () => {
+            deselectBuilding();
+        });
 
         const bldCanvasRenderer = L.canvas({ padding: 0.2 });
         let bldGeoJsonLayer = null;
@@ -1715,9 +1755,10 @@
             return {
                 renderer: bldCanvasRenderer,
                 color: '#38BDF8',
-                weight: 1.6,
+                weight: 1.3,
                 opacity: 0.95,
                 fillColor: '#0284C7',
+                fill: true,
                 fillOpacity: currentFillOpacity
             };
         }
@@ -1726,6 +1767,19 @@
             currentFillOpacity = op;
             if (bldGeoJsonLayer) {
                 bldGeoJsonLayer.setStyle(getBldStyle());
+            }
+            document.querySelectorAll('.bld-op-btn').forEach(b => {
+                b.className = "bld-op-btn px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-white text-xs font-bold";
+            });
+            if (op <= 0.05) {
+                const b = document.getElementById('btn-op-0');
+                if (b) b.className = "bld-op-btn px-2.5 py-1 rounded-lg bg-sky-950 border border-sky-500 text-sky-300 font-bold text-xs";
+            } else if (op <= 0.15) {
+                const b = document.getElementById('btn-op-12');
+                if (b) b.className = "bld-op-btn px-2.5 py-1 rounded-lg bg-sky-950 border border-sky-500 text-sky-300 font-bold text-xs";
+            } else {
+                const b = document.getElementById('btn-op-28');
+                if (b) b.className = "bld-op-btn px-2.5 py-1 rounded-lg bg-sky-950 border border-sky-500 text-sky-300 font-bold text-xs";
             }
         }
 
@@ -1738,9 +1792,10 @@
                 mouseover: (e) => {
                     if (selectedBldData && selectedBldData.id === bldId) return;
                     layer.setStyle({
-                        weight: 2.8,
+                        weight: 2.2,
                         color: '#FFFFFF',
-                        fillOpacity: 0.65
+                        fillColor: '#38BDF8',
+                        fillOpacity: 0.35
                     });
                     const badge = document.getElementById('bldStatusBadge');
                     if (badge) {
@@ -1772,10 +1827,10 @@
             selectedBldHighlight = L.geoJSON(feature, {
                 style: {
                     color: '#F59E0B',
-                    weight: 3.8,
+                    weight: 3.5,
                     opacity: 1,
                     fillColor: '#FBBF24',
-                    fillOpacity: 0.75,
+                    fillOpacity: 0.65,
                     className: 'selected-building-glow'
                 }
             }).addTo(buildingsMap);
