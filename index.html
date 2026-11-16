@@ -587,15 +587,19 @@
                 </div>
 
                 <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-end">
-                    <!-- Basemap Switcher (Satellite vs Dark Blueprint) -->
+                    <!-- Basemap Switcher (Pre-War Baseline vs Post-War vs Dark Blueprint) -->
                     <div class="flex items-center gap-1 p-1 bg-slate-900 rounded-xl border border-slate-700">
-                        <button onclick="setBldBasemap('satellite')" id="btn-bld-base-sat" class="px-3 py-1 rounded-lg text-xs font-bold transition bg-sky-600 text-white shadow-sm flex items-center gap-1.5">
-                            <span>🛰️</span>
-                            <span>مرئية فضائية</span>
+                        <button onclick="setBldBasemap('prewar')" id="btn-bld-base-pre" class="px-3 py-1 rounded-lg text-xs font-bold transition bg-emerald-600 text-white shadow-sm flex items-center gap-1.5" title="المرئية الفضائية لقطاع غزة صيف 2023 قبل بدء الحرب - تطابق أسطح المباني 100%">
+                            <span>🟢</span>
+                            <span>مرئية ما قبل الحرب (الأساس السليم)</span>
+                        </button>
+                        <button onclick="setBldBasemap('postwar')" id="btn-bld-base-post" class="px-3 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white flex items-center gap-1.5" title="المرئية الفضائية الحالية لرصد آثار الدمار">
+                            <span>🔴</span>
+                            <span>مرئية ما بعد الحرب (الحالية)</span>
                         </button>
                         <button onclick="setBldBasemap('blueprint')" id="btn-bld-base-blue" class="px-3 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white flex items-center gap-1.5">
                             <span>📐</span>
-                            <span>مخطط داكن (Blueprint)</span>
+                            <span>مخطط داكن</span>
                         </button>
                     </div>
 
@@ -617,8 +621,8 @@
                 <!-- Map Controls & Status Badge -->
                 <div class="absolute top-4 right-4 z-[400] flex flex-col gap-2 pointer-events-none">
                     <div class="pointer-events-auto bg-slate-950/90 backdrop-blur-md px-3.5 py-2 rounded-xl border border-slate-700 text-xs text-slate-300 shadow-lg flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-sky-400 animate-pulse"></span>
-                        <span id="bldStatusBadge">جاهز - انقر فوق أي مبنى لتحديده</span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span id="bldStatusBadge">جاهز - مرئية ما قبل الحرب (خط الأساس صيف 2023) - انقر فوق أي مبنى لتحديده</span>
                     </div>
                     <div class="pointer-events-auto bg-slate-950/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-700 text-[11px] text-slate-400 shadow-md">
                         💡 <span class="text-slate-300 font-semibold">مرر الماوس لمعاينة المبنى، وانقر لتحديده بدقة</span>
@@ -1704,7 +1708,11 @@
         let selectedBldData = null;
         let selectedBldHighlight = null;
         let currentFillOpacity = 0.01;
-        let currentBasemapMode = 'satellite';
+        let currentBasemapMode = 'prewar';
+
+        // Basemap Services: Pre-War Baseline (Summer 2023) vs Post-War (Current)
+        const URL_PREWAR_SAT = 'https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/GoogleMapsCompatible/MapServer/tile/64776/{z}/{y}/{x}';
+        const URL_POSTWAR_SAT = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
 
         // Leaflet Map Initialization with crisp 1:1,000 architectural scale (Zoom 17)
         const buildingsMap = L.map('buildingsMap', {
@@ -1713,35 +1721,43 @@
             maxZoom: 20
         }).setView([31.524, 34.444], 17);
 
-        // Satellite Basemap
-        const bldTileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        // Pre-War Pristine Satellite Basemap (Matches building footprints 100%)
+        const bldTileLayer = L.tileLayer(URL_PREWAR_SAT, {
             maxZoom: 20,
             maxNativeZoom: 18,
-            attribution: 'Esri World Imagery'
+            attribution: 'Esri World Imagery (Pre-War Baseline 2023)'
         }).addTo(buildingsMap);
 
         function setBldBasemap(mode) {
             currentBasemapMode = mode;
-            const btnSat = document.getElementById('btn-bld-base-sat');
+            const btnPre = document.getElementById('btn-bld-base-pre');
+            const btnPost = document.getElementById('btn-bld-base-post');
             const btnBlue = document.getElementById('btn-bld-base-blue');
             const container = bldTileLayer.getContainer();
             
-            if (mode === 'blueprint') {
+            if (container) container.style.filter = 'none';
+
+            // Reset buttons to inactive
+            if (btnPre) btnPre.className = "px-3 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white flex items-center gap-1.5";
+            if (btnPost) btnPost.className = "px-3 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white flex items-center gap-1.5";
+            if (btnBlue) btnBlue.className = "px-3 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white flex items-center gap-1.5";
+            
+            if (mode === 'prewar') {
+                bldTileLayer.setUrl(URL_PREWAR_SAT);
+                if (btnPre) btnPre.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-emerald-600 text-white shadow-sm flex items-center gap-1.5";
+                const badge = document.getElementById('bldStatusBadge');
+                if (badge) badge.textContent = 'تم تفعيل مرئية ما قبل الحرب (خط الأساس السليم صيف 2023) - المباني قائمة 100%';
+            } else if (mode === 'postwar') {
+                bldTileLayer.setUrl(URL_POSTWAR_SAT);
+                if (btnPost) btnPost.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-rose-600 text-white shadow-sm flex items-center gap-1.5";
+                const badge = document.getElementById('bldStatusBadge');
+                if (badge) badge.textContent = 'تم تفعيل المرئية الفضائية الحالية لرصد التغيرات وآثار الدمار';
+            } else if (mode === 'blueprint') {
+                bldTileLayer.setUrl(URL_PREWAR_SAT);
                 if (container) container.style.filter = 'brightness(0.7) contrast(1.15) saturate(0.4)';
-                if (btnBlue) {
-                    btnBlue.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-sky-600 text-white shadow-sm flex items-center gap-1.5";
-                }
-                if (btnSat) {
-                    btnSat.className = "px-3 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white flex items-center gap-1.5";
-                }
-            } else {
-                if (container) container.style.filter = 'none';
-                if (btnSat) {
-                    btnSat.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-sky-600 text-white shadow-sm flex items-center gap-1.5";
-                }
-                if (btnBlue) {
-                    btnBlue.className = "px-3 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white flex items-center gap-1.5";
-                }
+                if (btnBlue) btnBlue.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-sky-600 text-white shadow-sm flex items-center gap-1.5";
+                const badge = document.getElementById('bldStatusBadge');
+                if (badge) badge.textContent = 'تم تفعيل نمط المخطط الكادسترالي الداكن';
             }
         }
 
@@ -1868,7 +1884,7 @@
             const card = document.getElementById('buildingInspectorCard');
             if (card) card.classList.add('hidden');
             const badge = document.getElementById('bldStatusBadge');
-            if (badge) badge.textContent = `جاهز - انقر فوق أي مبنى لتحديده`;
+            if (badge) badge.textContent = `جاهز - مرئية ما قبل الحرب (خط الأساس صيف 2023) - انقر فوق أي مبنى لتحديده`;
         }
 
         function zoomToSelectedBuilding() {
